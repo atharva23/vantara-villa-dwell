@@ -121,6 +121,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           amenities: string[] | null
@@ -130,16 +154,22 @@ export type Database = {
           category: Database["public"]["Enums"]["property_category"]
           created_at: string | null
           description: string | null
+          extra_person_cost: number | null
           featured: boolean | null
           id: string
           images: string[] | null
           location: string
+          max_guests: number | null
+          max_guests_base_price: number | null
+          meal_charges_per_person: number | null
           no_of_bathrooms: number
           no_of_bedrooms: number
           price_per_night: number
           property_name: string
           published: boolean | null
           updated_at: string | null
+          weekday_price: number | null
+          weekend_price: number | null
         }
         Insert: {
           amenities?: string[] | null
@@ -149,16 +179,22 @@ export type Database = {
           category: Database["public"]["Enums"]["property_category"]
           created_at?: string | null
           description?: string | null
+          extra_person_cost?: number | null
           featured?: boolean | null
           id?: string
           images?: string[] | null
           location: string
+          max_guests?: number | null
+          max_guests_base_price?: number | null
+          meal_charges_per_person?: number | null
           no_of_bathrooms?: number
           no_of_bedrooms?: number
           price_per_night: number
           property_name: string
           published?: boolean | null
           updated_at?: string | null
+          weekday_price?: number | null
+          weekend_price?: number | null
         }
         Update: {
           amenities?: string[] | null
@@ -168,16 +204,22 @@ export type Database = {
           category?: Database["public"]["Enums"]["property_category"]
           created_at?: string | null
           description?: string | null
+          extra_person_cost?: number | null
           featured?: boolean | null
           id?: string
           images?: string[] | null
           location?: string
+          max_guests?: number | null
+          max_guests_base_price?: number | null
+          meal_charges_per_person?: number | null
           no_of_bathrooms?: number
           no_of_bedrooms?: number
           price_per_night?: number
           property_name?: string
           published?: boolean | null
           updated_at?: string | null
+          weekday_price?: number | null
+          weekend_price?: number | null
         }
         Relationships: []
       }
