@@ -1,0 +1,132 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, MessageCircle, X } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+interface Property {
+  id: string;
+  name: string;
+  location: string;
+  price: string;
+  description: string;
+  category: string;
+  amenities: string[];
+  images: string[];
+  book_link: string;
+}
+
+interface PropertyDetailDialogProps {
+  property: Property;
+  onClose: () => void;
+  onBook: () => void;
+}
+
+export const PropertyDetailDialog = ({
+  property,
+  onClose,
+  onBook,
+}: PropertyDetailDialogProps) => {
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <DialogTitle className="text-3xl font-bold text-foreground mb-2">
+                {property.name}
+              </DialogTitle>
+              <DialogDescription className="flex items-center text-muted-foreground mb-4">
+                <MapPin className="h-4 w-4 mr-1" />
+                {property.location}
+              </DialogDescription>
+            </div>
+            <Badge className="bg-primary ml-4">{property.category}</Badge>
+          </div>
+        </DialogHeader>
+
+        {/* Image Carousel */}
+        {property.images && property.images.length > 0 && (
+          <div className="mb-6">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {property.images.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="relative h-[400px] rounded-lg overflow-hidden">
+                      <img
+                        src={image}
+                        alt={`${property.name} - Image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {property.images.length > 1 && (
+                <>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4" />
+                </>
+              )}
+            </Carousel>
+          </div>
+        )}
+
+        {/* Price */}
+        <div className="mb-6">
+          <div className="text-3xl font-bold text-primary">
+            ₹{property.price}
+            <span className="text-lg font-normal text-muted-foreground"> / night</span>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold text-foreground mb-3">Description</h3>
+          <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+        </div>
+
+        {/* Amenities */}
+        {property.amenities && property.amenities.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-foreground mb-3">Amenities</h3>
+            <div className="flex flex-wrap gap-2">
+              {property.amenities.map((amenity, index) => (
+                <Badge key={index} variant="secondary">
+                  {amenity}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Book Now Button */}
+        <div className="flex gap-3 pt-4 border-t border-border">
+          <Button
+            className="flex-1 bg-primary hover:bg-primary/90"
+            onClick={onBook}
+            size="lg"
+          >
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Book Now via WhatsApp
+          </Button>
+          <Button variant="outline" onClick={onClose} size="lg">
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

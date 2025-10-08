@@ -1,13 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, isAdmin, signOut } = useAuth();
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -45,24 +43,6 @@ const Navbar = () => {
             <Button asChild className="bg-primary hover:bg-primary/90">
               <Link to="/book">Book a Stay</Link>
             </Button>
-            {isAdmin && (
-              <Button asChild variant="outline">
-                <Link to="/admin">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin
-                </Link>
-              </Button>
-            )}
-            {user ? (
-              <Button variant="ghost" onClick={() => signOut()}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            ) : (
-              <Button asChild variant="ghost">
-                <Link to="/auth">Sign In</Link>
-              </Button>
-            )}
           </div>
 
           {/* Mobile menu button */}
@@ -100,33 +80,6 @@ const Navbar = () => {
                 Book a Stay
               </Link>
             </Button>
-            {isAdmin && (
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin
-                </Link>
-              </Button>
-            )}
-            {user ? (
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => {
-                  signOut();
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            ) : (
-              <Button asChild variant="ghost" className="w-full">
-                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  Sign In
-                </Link>
-              </Button>
-            )}
           </div>
         </div>
       )}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -7,47 +6,70 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Bed, Bath, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PropertyDetailDialog } from "@/components/PropertyDetailDialog";
 
 interface Property {
   id: string;
-  property_name: string;
+  name: string;
   location: string;
+  price: string;
   description: string;
-  price_per_night: number;
-  no_of_bedrooms: number;
-  no_of_bathrooms: number;
   category: string;
+  amenities: string[];
   images: string[];
-  featured: boolean;
+  book_link: string;
 }
 
 const Properties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const { toast } = useToast();
 
   const categories = ["All", "Beach", "Mountain", "Heritage", "Corporate"];
 
   useEffect(() => {
-    fetchProperties();
+    fetchPropertiesFromGoogleSheet();
   }, []);
 
-  const fetchProperties = async () => {
+  const fetchPropertiesFromGoogleSheet = async () => {
     try {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("published", true)
-        .order("featured", { ascending: false })
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setProperties(data || []);
+      // Replace with your actual Google Sheet ID
+      const sheetId = "YOUR_GOOGLE_SHEET_ID";
+      const gid = "0"; // Sheet tab ID (usually 0 for first sheet)
+      
+      // Using Google Visualization API to fetch as JSON
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+      
+      const response = await fetch(url);
+      const text = await response.text();
+      
+      // Parse the response (Google returns JSONP, need to extract JSON)
+      const json = JSON.parse(text.substring(47).slice(0, -2));
+      
+      const rows = json.table.rows;
+      const parsedProperties: Property[] = rows.map((row: any) => {
+        const cells = row.c;
+        return {
+          id: cells[0]?.v || "",
+          name: cells[1]?.v || "",
+          location: cells[2]?.v || "",
+          price: cells[3]?.v || "",
+          description: cells[4]?.v || "",
+          category: cells[5]?.v || "",
+          amenities: cells[6]?.v ? cells[6].v.split(",").map((a: string) => a.trim()) : [],
+          images: cells[7]?.v ? cells[7].v.split(",").map((img: string) => img.trim()) : [],
+          book_link: cells[8]?.v || "https://wa.me/918485099069?text=Hi, I want to book a villa.",
+        };
+      });
+      
+      setProperties(parsedProperties);
     } catch (error) {
+      console.error("Error fetching properties:", error);
       toast({
         title: "Error",
-        description: "Failed to load properties",
+        description: "Failed to load properties from Google Sheets",
         variant: "destructive",
       });
     } finally {
@@ -60,10 +82,7 @@ const Properties = () => {
     : properties.filter(p => p.category === selectedCategory);
 
   const handleBookNow = (property: Property) => {
-    const message = encodeURIComponent(
-      `Hi Vantara Living, I'd like to book ${property.property_name} in ${property.location}. Please assist me with the next steps.`
-    );
-    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
+    window.open(property.book_link, "_blank");
   };
 
   return (
@@ -108,24 +127,23 @@ const Properties = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProperties.map((property) => (
-                <Card key={property.id} className="overflow-hidden border-border hover:shadow-xl transition-shadow">
+                <Card 
+                  key={property.id} 
+                  className="overflow-hidden border-border hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => setSelectedProperty(property)}
+                >
                   {/* Property Image */}
                   <div className="relative h-64 bg-muted">
                     {property.images && property.images.length > 0 ? (
                       <img
                         src={property.images[0]}
-                        alt={property.property_name}
+                        alt={property.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
                         <span className="text-muted-foreground">No image</span>
                       </div>
-                    )}
-                    {property.featured && (
-                      <Badge className="absolute top-4 left-4 bg-accent text-foreground">
-                        Featured
-                      </Badge>
                     )}
                     <Badge className="absolute top-4 right-4 bg-primary">
                       {property.category}
@@ -134,7 +152,7 @@ const Properties = () => {
 
                   <CardContent className="pt-6">
                     <h3 className="text-xl font-bold text-foreground mb-2">
-                      {property.property_name}
+                      {property.name}
                     </h3>
                     
                     <div className="flex items-center text-muted-foreground mb-3">
@@ -146,19 +164,8 @@ const Properties = () => {
                       {property.description}
                     </p>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Bed className="h-4 w-4" />
-                        <span>{property.no_of_bedrooms} Beds</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Bath className="h-4 w-4" />
-                        <span>{property.no_of_bathrooms} Baths</span>
-                      </div>
-                    </div>
-
                     <div className="text-2xl font-bold text-primary">
-                      ₹{property.price_per_night.toLocaleString()}
+                      ₹{property.price}
                       <span className="text-sm font-normal text-muted-foreground"> / night</span>
                     </div>
                   </CardContent>
@@ -166,7 +173,10 @@ const Properties = () => {
                   <CardFooter>
                     <Button 
                       className="w-full bg-primary hover:bg-primary/90"
-                      onClick={() => handleBookNow(property)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBookNow(property);
+                      }}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Book Now
@@ -180,6 +190,14 @@ const Properties = () => {
       </div>
 
       <Footer />
+      
+      {selectedProperty && (
+        <PropertyDetailDialog
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
+          onBook={() => handleBookNow(selectedProperty)}
+        />
+      )}
     </div>
   );
 };
