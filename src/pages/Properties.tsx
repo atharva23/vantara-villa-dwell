@@ -39,42 +39,57 @@ const Properties = () => {
       const sheetId = "2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy";
       const gid = "1148006823";
       
-      // Using Google Visualization API to fetch as JSON (note the /e/ for published sheets)
-      const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+      // Using CSV export for published sheets
+      const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
       
       console.log("Fetching from URL:", url);
       const response = await fetch(url);
-      const text = await response.text();
+      const csvText = await response.text();
       
-      console.log("Response text (first 200 chars):", text.substring(0, 200));
+      console.log("CSV Response (first 500 chars):", csvText.substring(0, 500));
       
-      // Parse the response (Google returns JSONP, need to extract JSON)
-      // The response format is: google.visualization.Query.setResponse({...});
-      // We need to extract the JSON object from inside
-      const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?$/);
+      // Parse CSV to JSON
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
       
-      if (!jsonMatch) {
-        throw new Error("Invalid response format from Google Sheets");
+      console.log("Headers:", headers);
+      
+      const parsedProperties: Property[] = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        
+        // Handle CSV parsing with quoted values
+        const values: string[] = [];
+        let currentValue = '';
+        let insideQuotes = false;
+        
+        for (let j = 0; j < lines[i].length; j++) {
+          const char = lines[i][j];
+          
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          } else if (char === ',' && !insideQuotes) {
+            values.push(currentValue.trim().replace(/^"|"$/g, ''));
+            currentValue = '';
+          } else {
+            currentValue += char;
+          }
+        }
+        values.push(currentValue.trim().replace(/^"|"$/g, ''));
+        
+        parsedProperties.push({
+          id: values[0] || "",
+          name: values[1] || "",
+          location: values[2] || "",
+          price: values[3] || "",
+          description: values[4] || "",
+          category: values[5] || "",
+          amenities: values[6] ? values[6].split(",").map((a: string) => a.trim()) : [],
+          images: values[7] ? values[7].split(",").map((img: string) => img.trim()) : [],
+          book_link: values[8] || "https://wa.me/918485099069?text=Hi, I want to book a villa.",
+        });
       }
-      
-      const json = JSON.parse(jsonMatch[1]);
-      console.log("Parsed JSON:", json);
-      
-      const rows = json.table.rows;
-      const parsedProperties: Property[] = rows.map((row: any) => {
-        const cells = row.c;
-        return {
-          id: cells[0]?.v || "",
-          name: cells[1]?.v || "",
-          location: cells[2]?.v || "",
-          price: cells[3]?.v || "",
-          description: cells[4]?.v || "",
-          category: cells[5]?.v || "",
-          amenities: cells[6]?.v ? cells[6].v.split(",").map((a: string) => a.trim()) : [],
-          images: cells[7]?.v ? cells[7].v.split(",").map((img: string) => img.trim()) : [],
-          book_link: cells[8]?.v || "https://wa.me/918485099069?text=Hi, I want to book a villa.",
-        };
-      });
       
       console.log("Parsed properties:", parsedProperties);
       setProperties(parsedProperties);
