@@ -36,8 +36,8 @@ const Properties = () => {
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
       // Replace with your actual Google Sheet ID
-      const sheetId = "1148006823";
-      const gid = "0"; // Sheet tab ID (usually 0 for first sheet)
+      const sheetId = "2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy";
+      const gid = "1148006823"; // Sheet tab ID (usually 0 for first sheet)
       
       // Using Google Visualization API to fetch as JSON
       const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
