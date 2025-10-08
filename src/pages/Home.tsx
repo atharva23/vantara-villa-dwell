@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Star, MapPin, Users, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import heroImage from "@/assets/hero-villa.jpg";
 
 const Home = () => {
@@ -47,8 +45,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="min-h-screen bg-background pt-20">
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -181,8 +178,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
