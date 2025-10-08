@@ -42,11 +42,23 @@ const Properties = () => {
       // Using Google Visualization API to fetch as JSON (note the /e/ for published sheets)
       const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
       
+      console.log("Fetching from URL:", url);
       const response = await fetch(url);
       const text = await response.text();
       
+      console.log("Response text (first 200 chars):", text.substring(0, 200));
+      
       // Parse the response (Google returns JSONP, need to extract JSON)
-      const json = JSON.parse(text.substring(47).slice(0, -2));
+      // The response format is: google.visualization.Query.setResponse({...});
+      // We need to extract the JSON object from inside
+      const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?$/);
+      
+      if (!jsonMatch) {
+        throw new Error("Invalid response format from Google Sheets");
+      }
+      
+      const json = JSON.parse(jsonMatch[1]);
+      console.log("Parsed JSON:", json);
       
       const rows = json.table.rows;
       const parsedProperties: Property[] = rows.map((row: any) => {
@@ -64,6 +76,7 @@ const Properties = () => {
         };
       });
       
+      console.log("Parsed properties:", parsedProperties);
       setProperties(parsedProperties);
     } catch (error) {
       console.error("Error fetching properties:", error);
