@@ -25,6 +25,7 @@ interface Property {
   category: string;
   amenities: string[];
   images: string[];
+  book_link: string;
   whatsapp_number: string;
   max_guests?: string;
   bedrooms?: string;
