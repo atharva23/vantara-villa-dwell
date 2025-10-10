@@ -121,9 +121,8 @@ const Properties = () => {
     : properties.filter(p => p.category === selectedCategory);
 
   const handleBookNow = (property: Property) => {
-    const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
-    const message = `I'm interested in booking ${property.name}`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    // Use booking link from spreadsheet directly
+    const whatsappUrl = property.book_link;
     window.open(whatsappUrl, "_blank");
   };
 
