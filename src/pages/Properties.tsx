@@ -85,9 +85,9 @@ const Properties = () => {
           price: values[3] || "",
           description: values[4] || "",
           category: values[5] || "",
-          amenities: values[6] ? values[6].split(",").map((a: string) => a.trim()) : [],
-          images: values[7] ? values[7].split(",").map((img: string) => img.trim()) : [],
-          book_link: values[8] || "https://wa.me/918485099069?text=Hi, I want to book a villa.",
+          amenities: values[6] ? values[6].split(";").map((a: string) => a.trim()) : [],
+          images: values[7] ? values[7].split(";").map((img: string) => img.trim()) : [],
+          book_link: "",
         });
       }
       
@@ -110,7 +110,10 @@ const Properties = () => {
     : properties.filter(p => p.category === selectedCategory);
 
   const handleBookNow = (property: Property) => {
-    window.open(property.book_link, "_blank");
+    const phoneNumber = "918485099069";
+    const message = encodeURIComponent(`Hi, I want to book ${property.name} at ${property.location}`);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
@@ -157,57 +160,80 @@ const Properties = () => {
               {filteredProperties.map((property) => (
                 <Card 
                   key={property.id} 
-                  className="overflow-hidden border-border hover:shadow-xl transition-shadow cursor-pointer"
+                  className="group overflow-hidden border-border hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
                   onClick={() => setSelectedProperty(property)}
                 >
-                  {/* Property Image */}
-                  <div className="relative h-64 bg-muted">
+                  {/* Property Image with Overlay */}
+                  <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
-                      <img
-                        src={property.images[0]}
-                        alt={property.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={property.images[0]}
+                          alt={property.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
                         <span className="text-muted-foreground">No image</span>
                       </div>
                     )}
-                    <Badge className="absolute top-4 right-4 bg-primary">
+                    <Badge className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm">
                       {property.category}
                     </Badge>
+                    {property.images && property.images.length > 1 && (
+                      <Badge variant="secondary" className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm">
+                        +{property.images.length - 1} photos
+                      </Badge>
+                    )}
                   </div>
 
-                  <CardContent className="pt-6">
-                    <h3 className="text-xl font-bold text-foreground mb-2">
+                  <CardContent className="pt-6 space-y-3">
+                    <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
                       {property.name}
                     </h3>
                     
-                    <div className="flex items-center text-muted-foreground mb-3">
-                      <MapPin className="h-4 w-4 mr-1" />
+                    <div className="flex items-center text-muted-foreground">
+                      <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
                       <span className="text-sm">{property.location}</span>
                     </div>
 
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                    <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
                       {property.description}
                     </p>
 
-                    <div className="text-2xl font-bold text-primary">
+                    {property.amenities && property.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {property.amenities.slice(0, 3).map((amenity, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {amenity}
+                          </Badge>
+                        ))}
+                        {property.amenities.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{property.amenities.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="text-2xl font-bold text-primary pt-2">
                       ₹{property.price}
                       <span className="text-sm font-normal text-muted-foreground"> / night</span>
                     </div>
                   </CardContent>
 
-                  <CardFooter>
+                  <CardFooter className="pt-0">
                     <Button 
-                      className="w-full bg-primary hover:bg-primary/90"
+                      className="w-full bg-primary hover:bg-primary/90 group-hover:shadow-lg transition-all"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleBookNow(property);
                       }}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
-                      Book Now
+                      Book Now via WhatsApp
                     </Button>
                   </CardFooter>
                 </Card>
