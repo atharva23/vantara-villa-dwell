@@ -17,7 +17,6 @@ interface Property {
   category: string;
   amenities: string[];
   images: string[];
-  book_link: string;
   whatsapp_number: string;
   max_guests?: string;
   bedrooms?: string;
@@ -82,7 +81,7 @@ const Properties = () => {
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ''));
         
-        // Columns: Property ID, Name, Location, Description, Price per Night, Image URL 1, Image URL 2, Image URL 3, WhatsApp Number, Booking Link, Amenities, Max Guests, Bedrooms, Bathrooms
+        // Columns: Property ID, Name, Location, Description, Price per Night, Image URL 1, Image URL 2, Image URL 3, WhatsApp Number, Booking Link (ignored), Amenities, Max Guests, Bedrooms, Bathrooms
         const images = [values[5], values[6], values[7]].filter(img => img && img.trim());
         
         parsedProperties.push({
@@ -94,7 +93,6 @@ const Properties = () => {
           category: "Villa", // Default category
           images: images,
           whatsapp_number: values[8] || "+91 84850 99069",
-          book_link: values[9] || "",
           amenities: values[10] ? values[10].split(",").map((a: string) => a.trim()) : [],
           max_guests: values[11] || "",
           bedrooms: values[12] || "",
