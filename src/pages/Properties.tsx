@@ -18,6 +18,10 @@ interface Property {
   amenities: string[];
   images: string[];
   book_link: string;
+  whatsapp_number: string;
+  max_guests?: string;
+  bedrooms?: string;
+  bathrooms?: string;
 }
 
 const Properties = () => {
@@ -78,16 +82,23 @@ const Properties = () => {
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ''));
         
+        // Columns: Property ID, Name, Location, Description, Price per Night, Image URL 1, Image URL 2, Image URL 3, WhatsApp Number, Booking Link, Amenities, Max Guests, Bedrooms, Bathrooms
+        const images = [values[5], values[6], values[7]].filter(img => img && img.trim());
+        
         parsedProperties.push({
           id: values[0] || "",
           name: values[1] || "",
           location: values[2] || "",
-          price: values[3] || "",
-          description: values[4] || "",
-          category: values[5] || "",
-          amenities: values[6] ? values[6].split(";").map((a: string) => a.trim()) : [],
-          images: values[7] ? values[7].split(";").map((img: string) => img.trim()) : [],
-          book_link: "",
+          description: values[3] || "",
+          price: values[4]?.replace('₹', '').replace(',', '') || "",
+          category: "Villa", // Default category
+          images: images,
+          whatsapp_number: values[8] || "+91 84850 99069",
+          book_link: values[9] || "",
+          amenities: values[10] ? values[10].split(",").map((a: string) => a.trim()) : [],
+          max_guests: values[11] || "",
+          bedrooms: values[12] || "",
+          bathrooms: values[13] || "",
         });
       }
       
@@ -110,9 +121,9 @@ const Properties = () => {
     : properties.filter(p => p.category === selectedCategory);
 
   const handleBookNow = (property: Property) => {
-    const phoneNumber = "918485099069";
-    const message = encodeURIComponent(`Hi, I want to book ${property.name} at ${property.location}`);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
+    const message = `I'm interested in booking ${property.name}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -217,6 +228,12 @@ const Properties = () => {
                         )}
                       </div>
                     )}
+
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                      {property.bedrooms && <span>🛏️ {property.bedrooms} Beds</span>}
+                      {property.bathrooms && <span>🚿 {property.bathrooms} Baths</span>}
+                      {property.max_guests && <span>👥 {property.max_guests} Guests</span>}
+                    </div>
 
                     <div className="text-2xl font-bold text-primary pt-2">
                       ₹{property.price}

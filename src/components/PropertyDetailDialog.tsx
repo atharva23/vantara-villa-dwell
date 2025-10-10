@@ -26,6 +26,10 @@ interface Property {
   amenities: string[];
   images: string[];
   book_link: string;
+  whatsapp_number: string;
+  max_guests?: string;
+  bedrooms?: string;
+  bathrooms?: string;
 }
 
 interface PropertyDetailDialogProps {
@@ -84,11 +88,28 @@ export const PropertyDetailDialog = ({
           </div>
         )}
 
-        {/* Price */}
-        <div className="mb-6">
-          <div className="text-3xl font-bold text-primary">
+        {/* Price & Details */}
+        <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+          <div className="text-3xl font-bold text-primary mb-3">
             ₹{property.price}
             <span className="text-lg font-normal text-muted-foreground"> / night</span>
+          </div>
+          <div className="flex items-center gap-6 text-muted-foreground">
+            {property.bedrooms && (
+              <span className="flex items-center gap-1">
+                🛏️ <span className="font-medium">{property.bedrooms}</span> Bedrooms
+              </span>
+            )}
+            {property.bathrooms && (
+              <span className="flex items-center gap-1">
+                🚿 <span className="font-medium">{property.bathrooms}</span> Bathrooms
+              </span>
+            )}
+            {property.max_guests && (
+              <span className="flex items-center gap-1">
+                👥 <span className="font-medium">{property.max_guests}</span> Guests
+              </span>
+            )}
           </div>
         </div>
 
