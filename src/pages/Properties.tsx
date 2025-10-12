@@ -125,20 +125,21 @@ const Properties = () => {
     }
   };
 
-  const filteredProperties = selectedCategory === "All" 
-    ? properties 
-    : properties.filter(p => {
-        if (p.category !== selectedCategory) return false;
-        
-        // Filter by max guests (adults + children)
-        if (p.max_guests) {
-          const totalGuests = parseInt(adults) + parseInt(children);
-          const maxGuests = parseInt(p.max_guests);
-          return totalGuests <= maxGuests;
-        }
-        
-        return true;
-      });
+  const filteredProperties = properties.filter(p => {
+    // Filter by category
+    if (selectedCategory !== "All" && p.category !== selectedCategory) {
+      return false;
+    }
+    
+    // Filter by max guests (adults + children)
+    if (p.max_guests) {
+      const totalGuests = parseInt(adults) + parseInt(children);
+      const maxGuests = parseInt(p.max_guests);
+      return totalGuests <= maxGuests;
+    }
+    
+    return true;
+  });
 
   const handleBookNow = (property: Property) => {
     const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
