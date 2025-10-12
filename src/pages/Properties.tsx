@@ -29,7 +29,7 @@ interface Property {
 const Properties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedLocation, setSelectedLocation] = useState<string>("All");
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -42,7 +42,8 @@ const Properties = () => {
   
   console.log("Search params from URL:", { checkIn, checkOut, adults, children });
 
-  const categories = ["All", "Beach", "Mountain", "Heritage", "Corporate"];
+  // Get unique locations from properties
+  const locations = ["All", ...Array.from(new Set(properties.map(p => p.location)))];
 
   useEffect(() => {
     fetchPropertiesFromGoogleSheet();
@@ -128,8 +129,8 @@ const Properties = () => {
   };
 
   const filteredProperties = properties.filter(p => {
-    // Filter by category
-    if (selectedCategory !== "All" && p.category !== selectedCategory) {
+    // Filter by location
+    if (selectedLocation !== "All" && p.location !== selectedLocation) {
       return false;
     }
     
@@ -204,16 +205,16 @@ const Properties = () => {
             </p>
           </div>
 
-          {/* Category Filter */}
+          {/* Location Filter */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {categories.map((category) => (
+            {locations.map((location) => (
               <Button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                variant={selectedCategory === category ? "default" : "outline"}
-                className={selectedCategory === category ? "bg-primary" : ""}
+                key={location}
+                onClick={() => setSelectedLocation(location)}
+                variant={selectedLocation === location ? "default" : "outline"}
+                className={selectedLocation === location ? "bg-primary" : ""}
               >
-                {category}
+                {location}
               </Button>
             ))}
           </div>
@@ -225,7 +226,7 @@ const Properties = () => {
             </div>
           ) : filteredProperties.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No properties found in this category.</p>
+              <p className="text-muted-foreground">No properties found in this location.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
