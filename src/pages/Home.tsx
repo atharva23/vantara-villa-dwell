@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Star, MapPin, Users, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-villa.jpg";
+import { SearchBar } from "@/components/SearchBar";
 
 const Home = () => {
   const services = [
@@ -56,13 +57,19 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/40 to-foreground/60" />
         </div>
         
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <div className="relative z-10 text-center px-4 max-w-6xl mx-auto w-full">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 animate-fade-in">
             Curated Luxury Villas.<br />Seamless Stays.<br />Memorable Experiences.
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             Discover handpicked luxury villas in the world's most stunning destinations
           </p>
+          
+          {/* Search Bar */}
+          <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <SearchBar />
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-foreground">
               <Link to="/properties">

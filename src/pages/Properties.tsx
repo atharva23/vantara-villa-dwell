@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, MessageCircle } from "lucide-react";
+import { MapPin, Bed, Bath, MessageCircle, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PropertyDetailDialog } from "@/components/PropertyDetailDialog";
+import { format } from "date-fns";
 
 interface Property {
   id: string;
@@ -29,7 +31,14 @@ const Properties = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Get search params
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const adults = searchParams.get("adults") || "2";
+  const children = searchParams.get("children") || "0";
 
   const categories = ["All", "Beach", "Mountain", "Heritage", "Corporate"];
 
@@ -118,12 +127,58 @@ const Properties = () => {
 
   const filteredProperties = selectedCategory === "All" 
     ? properties 
-    : properties.filter(p => p.category === selectedCategory);
+    : properties.filter(p => {
+        if (p.category !== selectedCategory) return false;
+        
+        // Filter by max guests (adults + children)
+        if (p.max_guests) {
+          const totalGuests = parseInt(adults) + parseInt(children);
+          const maxGuests = parseInt(p.max_guests);
+          return totalGuests <= maxGuests;
+        }
+        
+        return true;
+      });
 
   const handleBookNow = (property: Property) => {
-    // Use booking link from spreadsheet directly
-    const whatsappUrl = property.book_link;
+    const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
+    let message = `I'm interested in booking ${property.name}`;
+    
+    // Add booking details if available
+    if (checkIn && checkOut) {
+      const checkInDate = format(new Date(checkIn), "PPP");
+      const checkOutDate = format(new Date(checkOut), "PPP");
+      message += `\n\nBooking Details:\nCheck-in: ${checkInDate}\nCheck-out: ${checkOutDate}\nAdults: ${adults}\nChildren: ${children}`;
+    }
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
+  };
+
+  const handleShare = (property: Property) => {
+    const shareUrl = window.location.origin + `/properties?property=${property.id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: property.name,
+        text: `Check out ${property.name} at ${property.location}`,
+        url: shareUrl,
+      }).catch(() => {
+        // Fallback to copying to clipboard
+        navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Link copied!",
+          description: "Property link copied to clipboard",
+        });
+      });
+    } else {
+      // Fallback to copying to clipboard
+      navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "Link copied!",
+        description: "Property link copied to clipboard",
+      });
+    }
   };
 
   return (
@@ -235,14 +290,15 @@ const Properties = () => {
                     </div>
 
                     <div className="text-2xl font-bold text-primary pt-2">
+                      <span className="text-sm font-normal text-muted-foreground">starts with </span>
                       ₹{property.price}
                       <span className="text-sm font-normal text-muted-foreground"> / night</span>
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-0">
+                  <CardFooter className="pt-0 flex gap-2">
                     <Button 
-                      className="w-full bg-primary hover:bg-primary/90 group-hover:shadow-lg transition-all"
+                      className="flex-1 bg-primary hover:bg-primary/90 group-hover:shadow-lg transition-all"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleBookNow(property);
@@ -250,6 +306,16 @@ const Properties = () => {
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Book Now via WhatsApp
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShare(property);
+                      }}
+                    >
+                      <Share2 className="h-4 w-4" />
                     </Button>
                   </CardFooter>
                 </Card>
