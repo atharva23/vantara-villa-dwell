@@ -39,6 +39,8 @@ const Properties = () => {
   const checkOut = searchParams.get("checkOut");
   const adults = searchParams.get("adults") || "2";
   const children = searchParams.get("children") || "0";
+  
+  console.log("Search params from URL:", { checkIn, checkOut, adults, children });
 
   const categories = ["All", "Beach", "Mountain", "Heritage", "Corporate"];
 
