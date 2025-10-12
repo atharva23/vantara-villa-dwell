@@ -145,12 +145,16 @@ const Properties = () => {
     const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
     let message = `I'm interested in booking ${property.name}`;
     
+    console.log("Booking params:", { checkIn, checkOut, adults, children });
+    
     // Add booking details if available
     if (checkIn && checkOut) {
       const checkInDate = format(new Date(checkIn), "PPP");
       const checkOutDate = format(new Date(checkOut), "PPP");
       message += `\n\nBooking Details:\nCheck-in: ${checkInDate}\nCheck-out: ${checkOutDate}\nAdults: ${adults}\nChildren: ${children}`;
     }
+    
+    console.log("WhatsApp message:", message);
     
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
