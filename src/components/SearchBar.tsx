@@ -59,43 +59,41 @@ export const SearchBar = () => {
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <div className="p-4">
-              <div className="mb-4">
-                <p className="text-sm font-medium mb-2">
-                  {!checkIn ? "Select Check-in Date" : "Select Check-out Date"}
-                </p>
-                <Calendar
-                  mode="single"
-                  selected={!checkIn ? checkIn : checkOut}
-                  onSelect={(date) => {
-                    if (!checkIn) {
-                      setCheckIn(date);
-                    } else {
-                      setCheckOut(date);
-                      if (date) setShowDatePicker(false);
-                    }
+              <p className="text-sm font-medium mb-2">
+                {!checkIn ? "Select Check-in Date" : !checkOut ? "Select Check-out Date" : "Dates Selected"}
+              </p>
+              <Calendar
+                mode="single"
+                selected={!checkIn ? checkIn : checkOut}
+                onSelect={(date) => {
+                  if (!checkIn) {
+                    setCheckIn(date);
+                  } else if (!checkOut) {
+                    setCheckOut(date);
+                    setShowDatePicker(false);
+                  }
+                }}
+                disabled={(date) => {
+                  if (!checkIn) {
+                    return date < new Date();
+                  }
+                  return date <= checkIn;
+                }}
+                className="pointer-events-auto"
+              />
+              {checkIn && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCheckIn(undefined);
+                    setCheckOut(undefined);
                   }}
-                  disabled={(date) => {
-                    if (!checkIn) {
-                      return date < new Date();
-                    }
-                    return date <= checkIn;
-                  }}
-                  className="pointer-events-auto"
-                />
-                {checkIn && !checkOut && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setCheckIn(undefined);
-                      setCheckOut(undefined);
-                    }}
-                    className="w-full mt-2"
-                  >
-                    Reset Dates
-                  </Button>
-                )}
-              </div>
+                  className="w-full mt-2"
+                >
+                  Reset Dates
+                </Button>
+              )}
             </div>
           </PopoverContent>
         </Popover>
