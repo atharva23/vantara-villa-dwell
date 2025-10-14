@@ -58,27 +58,43 @@ export const SearchBar = () => {
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <div className="p-4 space-y-4">
-              <div>
-                <p className="text-sm font-medium mb-2">Check-in</p>
+            <div className="p-4">
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">
+                  {!checkIn ? "Select Check-in Date" : "Select Check-out Date"}
+                </p>
                 <Calendar
                   mode="single"
-                  selected={checkIn}
-                  onSelect={setCheckIn}
-                  disabled={(date) => date < new Date()}
-                />
-              </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Check-out</p>
-                <Calendar
-                  mode="single"
-                  selected={checkOut}
+                  selected={!checkIn ? checkIn : checkOut}
                   onSelect={(date) => {
-                    setCheckOut(date);
-                    if (date) setShowDatePicker(false);
+                    if (!checkIn) {
+                      setCheckIn(date);
+                    } else {
+                      setCheckOut(date);
+                      if (date) setShowDatePicker(false);
+                    }
                   }}
-                  disabled={(date) => !checkIn || date <= checkIn}
+                  disabled={(date) => {
+                    if (!checkIn) {
+                      return date < new Date();
+                    }
+                    return date <= checkIn;
+                  }}
+                  className="pointer-events-auto"
                 />
+                {checkIn && !checkOut && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCheckIn(undefined);
+                      setCheckOut(undefined);
+                    }}
+                    className="w-full mt-2"
+                  >
+                    Reset Dates
+                  </Button>
+                )}
               </div>
             </div>
           </PopoverContent>

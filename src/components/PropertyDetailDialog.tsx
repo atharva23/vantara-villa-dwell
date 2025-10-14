@@ -45,11 +45,11 @@ export const PropertyDetailDialog = ({
 }: PropertyDetailDialogProps) => {
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <DialogTitle className="text-3xl font-bold text-foreground mb-2">
+              <DialogTitle className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                 {property.name}
               </DialogTitle>
               <DialogDescription className="flex items-center text-muted-foreground mb-4">
@@ -68,7 +68,7 @@ export const PropertyDetailDialog = ({
               <CarouselContent>
                 {property.images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <div className="relative h-[400px] rounded-lg overflow-hidden">
+                    <div className="relative h-[250px] sm:h-[400px] rounded-lg overflow-hidden">
                       <img
                         src={image}
                         alt={`${property.name} - Image ${index + 1}`}
@@ -80,8 +80,8 @@ export const PropertyDetailDialog = ({
               </CarouselContent>
               {property.images.length > 1 && (
                 <>
-                  <CarouselPrevious className="left-4" />
-                  <CarouselNext className="right-4" />
+                  <CarouselPrevious className="left-2 sm:left-4" />
+                  <CarouselNext className="right-2 sm:right-4" />
                 </>
               )}
             </Carousel>
@@ -90,11 +90,11 @@ export const PropertyDetailDialog = ({
 
         {/* Price & Details */}
         <div className="mb-6 p-4 bg-muted/50 rounded-lg">
-          <div className="text-3xl font-bold text-primary mb-3">
+          <div className="text-2xl sm:text-3xl font-bold text-primary mb-3">
             ₹{property.price}
-            <span className="text-lg font-normal text-muted-foreground"> / night</span>
+            <span className="text-base sm:text-lg font-normal text-muted-foreground"> / night</span>
           </div>
-          <div className="flex items-center gap-6 text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm sm:text-base text-muted-foreground">
             {property.bedrooms && (
               <span className="flex items-center gap-1">
                 🛏️ <span className="font-medium">{property.bedrooms}</span> Bedrooms
@@ -115,17 +115,17 @@ export const PropertyDetailDialog = ({
 
         {/* Description */}
         <div className="mb-6">
-          <h3 className="text-xl font-semibold text-foreground mb-3">Description</h3>
-          <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+          <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3">Description</h3>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{property.description}</p>
         </div>
 
         {/* Amenities */}
         {property.amenities && property.amenities.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-xl font-semibold text-foreground mb-3">Amenities</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3">Amenities</h3>
             <div className="flex flex-wrap gap-2">
               {property.amenities.map((amenity, index) => (
-                <Badge key={index} variant="secondary">
+                <Badge key={index} variant="secondary" className="text-xs sm:text-sm">
                   {amenity}
                 </Badge>
               ))}
@@ -134,7 +134,7 @@ export const PropertyDetailDialog = ({
         )}
 
         {/* Book Now Button */}
-        <div className="flex gap-3 pt-4 border-t border-border">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
           <Button
             className="flex-1 bg-primary hover:bg-primary/90"
             onClick={onBook}
@@ -143,7 +143,7 @@ export const PropertyDetailDialog = ({
             <MessageCircle className="mr-2 h-5 w-5" />
             Book Now via WhatsApp
           </Button>
-          <Button variant="outline" onClick={onClose} size="lg">
+          <Button variant="outline" onClick={onClose} size="lg" className="sm:w-auto">
             Close
           </Button>
         </div>

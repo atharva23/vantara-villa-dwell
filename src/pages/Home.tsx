@@ -1,11 +1,73 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Star, MapPin, Users, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-villa.jpg";
 import { SearchBar } from "@/components/SearchBar";
+import { PropertySlider } from "@/components/PropertySlider";
+
+interface Property {
+  id: string;
+  name: string;
+  location: string;
+  price: string;
+  description: string;
+  category: string;
+  amenities: string[];
+  images: string[];
+  book_link: string;
+  whatsapp_number: string;
+  max_guests?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+}
 
 const Home = () => {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      const response = await fetch(
+        "https://sheets.googleapis.com/v4/spreadsheets/1Uxl7xz6_n3M7wHlJUOBQtlTlW0y2EjcV9nv9eV31TmM/values/Sheet1?key=AIzaSyAaGxNrxDyPUmDJ8nQKOoxATN94MqwI7ww"
+      );
+      const data = await response.json();
+
+      if (data.values && data.values.length > 1) {
+        const headers = data.values[0];
+        const rows = data.values.slice(1);
+
+        const formattedProperties: Property[] = rows.map((row: string[]) => {
+          const property: any = {};
+          headers.forEach((header: string, index: number) => {
+            const key = header.toLowerCase().replace(/\s+/g, "_");
+            let value = row[index] || "";
+
+            if (key === "amenities" && value) {
+              property[key] = value.split(",").map((item) => item.trim());
+            } else if (key === "images" && value) {
+              property[key] = value.split(",").map((url) => url.trim());
+            } else {
+              property[key] = value;
+            }
+          });
+          return property as Property;
+        });
+
+        setProperties(formattedProperties.slice(0, 6));
+      }
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const services = [
     {
       icon: <Sparkles className="h-8 w-8 text-accent" />,
@@ -23,6 +85,7 @@ const Home = () => {
       description: "Personalized culinary experiences by professional chefs",
     },
   ];
+
 
   const testimonials = [
     {
@@ -123,7 +186,15 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="text-center">
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading properties...</p>
+            </div>
+          ) : properties.length > 0 ? (
+            <PropertySlider properties={properties} />
+          ) : null}
+
+          <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
               <Link to="/properties">
                 View All Properties <ArrowRight className="ml-2 h-5 w-5" />
