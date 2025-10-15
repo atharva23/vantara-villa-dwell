@@ -35,12 +35,13 @@ const Properties = () => {
   const { toast } = useToast();
 
   // Get search params
+  const locationParam = searchParams.get("location");
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
   const adults = searchParams.get("adults") || "2";
   const children = searchParams.get("children") || "0";
   
-  console.log("Search params from URL:", { checkIn, checkOut, adults, children });
+  console.log("Search params from URL:", { location: locationParam, checkIn, checkOut, adults, children });
 
   // Get unique locations from properties
   const locations = ["All", ...Array.from(new Set(properties.map(p => p.location)))];
@@ -48,6 +49,13 @@ const Properties = () => {
   useEffect(() => {
     fetchPropertiesFromGoogleSheet();
   }, []);
+
+  // Set selected location from URL params when properties are loaded
+  useEffect(() => {
+    if (locationParam && properties.length > 0) {
+      setSelectedLocation(locationParam);
+    }
+  }, [locationParam, properties]);
 
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
