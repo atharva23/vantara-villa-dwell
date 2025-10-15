@@ -92,7 +92,7 @@ export const PropertyDetailDialog = ({
         <div className="mb-6 p-4 bg-muted/50 rounded-lg">
           <div className="text-2xl sm:text-3xl font-bold text-primary mb-3">
             <span className="text-base sm:text-lg font-normal text-muted-foreground">starts from </span>
-            {property.price}
+            ₹{property.price}
             <span className="text-base sm:text-lg font-normal text-muted-foreground"> / night</span>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm sm:text-base text-muted-foreground">
