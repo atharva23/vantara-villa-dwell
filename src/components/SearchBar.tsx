@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,24 +11,83 @@ import { cn } from "@/lib/utils";
 export const SearchBar = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState<string>("");
-  const [locations] = useState<string[]>([
-    "Goa",
-    "Manali",
-    "Udaipur",
-    "Shimla",
-    "Ooty",
-    "Rishikesh",
-    "Coorg",
-    "Lonavala",
-    "Kasauli",
-    "Nainital"
-  ]);
+  const [locations, setLocations] = useState<string[]>([]);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [adults, setAdults] = useState<number>(1);
   const [children, setChildren] = useState<number>(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
+
+  useEffect(() => {
+    fetchLocationsFromGoogleSheet();
+  }, []);
+
+  const fetchLocationsFromGoogleSheet = async () => {
+    try {
+      // Published Google Sheet ID - same as Properties page
+      const sheetId = "2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy";
+      const gid = "1148006823";
+      
+      // Using CSV export for published sheets
+      const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
+      
+      const response = await fetch(url);
+      const csvText = await response.text();
+      
+      // Parse CSV to get unique locations
+      const lines = csvText.split('\n');
+      const uniqueLocations = new Set<string>();
+      
+      // Skip header row, iterate through data rows
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        
+        // Handle CSV parsing with quoted values
+        const values: string[] = [];
+        let currentValue = '';
+        let insideQuotes = false;
+        
+        for (let j = 0; j < lines[i].length; j++) {
+          const char = lines[i][j];
+          
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          } else if (char === ',' && !insideQuotes) {
+            values.push(currentValue.trim().replace(/^"|"$/g, ''));
+            currentValue = '';
+          } else {
+            currentValue += char;
+          }
+        }
+        values.push(currentValue.trim().replace(/^"|"$/g, ''));
+        
+        // Location is in column index 2 (third column)
+        const locationValue = values[2];
+        if (locationValue && locationValue.trim()) {
+          uniqueLocations.add(locationValue.trim());
+        }
+      }
+      
+      // Convert Set to Array and sort alphabetically
+      setLocations(Array.from(uniqueLocations).sort());
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      // Fallback to default locations if fetch fails
+      setLocations([
+        "Goa",
+        "Manali",
+        "Udaipur",
+        "Shimla",
+        "Ooty",
+        "Rishikesh",
+        "Coorg",
+        "Lonavala",
+        "Kasauli",
+        "Nainital"
+      ]);
+    }
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -44,13 +103,13 @@ export const SearchBar = () => {
   const totalGuests = adults + children;
 
   return (
-    <div className="bg-white rounded-full shadow-lg border border-border max-w-4xl mx-auto">
-      <div className="flex items-center divide-x divide-border">
+    <div className="bg-white rounded-3xl md:rounded-full shadow-lg border border-border max-w-4xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center md:divide-x divide-border">
         {/* Location */}
-        <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-0">
+        <div className="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 flex-1 min-w-0 border-b md:border-b-0 border-border">
           <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
           <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-base">
+            <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm md:text-base">
               <SelectValue placeholder="Search Location" />
             </SelectTrigger>
             <SelectContent>
@@ -66,9 +125,9 @@ export const SearchBar = () => {
         {/* Check-in - Check-out */}
         <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
           <PopoverTrigger asChild>
-            <button className="flex items-center gap-3 px-6 py-4 flex-1 min-w-0 text-left hover:bg-accent/50 transition-colors">
+            <button className="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 flex-1 min-w-0 text-left hover:bg-accent/50 transition-colors border-b md:border-b-0 border-border">
               <CalendarIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <span className={cn("text-base", !checkIn && !checkOut && "text-muted-foreground")}>
+              <span className={cn("text-sm md:text-base", !checkIn && !checkOut && "text-muted-foreground")}>
                 {checkIn && checkOut
                   ? `${format(checkIn, "MMM dd")} - ${format(checkOut, "MMM dd")}`
                   : "Check-in - Check-out"}
@@ -119,9 +178,9 @@ export const SearchBar = () => {
         {/* Guests */}
         <Popover open={showGuestPicker} onOpenChange={setShowGuestPicker}>
           <PopoverTrigger asChild>
-            <button className="flex items-center gap-3 px-6 py-4 flex-1 min-w-0 text-left hover:bg-accent/50 transition-colors">
+            <button className="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 flex-1 min-w-0 text-left hover:bg-accent/50 transition-colors border-b md:border-b-0 border-border">
               <Users className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <span className="text-base">
+              <span className="text-sm md:text-base">
                 {totalGuests} {totalGuests === 1 ? "Guest" : "Guests"}
               </span>
             </button>
@@ -186,13 +245,13 @@ export const SearchBar = () => {
         </Popover>
 
         {/* Search Button */}
-        <div className="p-2">
+        <div className="p-3 md:p-2">
           <Button 
             onClick={handleSearch}
-            size="icon"
-            className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90"
+            className="w-full md:w-auto h-10 md:h-12 md:rounded-full rounded-lg bg-primary hover:bg-primary/90"
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-5 w-5 md:mr-0 mr-2" />
+            <span className="md:hidden">Search</span>
           </Button>
         </div>
       </div>
