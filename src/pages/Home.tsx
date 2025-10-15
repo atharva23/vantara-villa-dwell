@@ -31,35 +31,78 @@ const Home = () => {
     fetchProperties();
   }, []);
 
+  const parseCSV = (text: string) => {
+    const lines = text.split('\n');
+    const result: string[][] = [];
+    
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      
+      const row: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          row.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      row.push(current.trim());
+      result.push(row);
+    }
+    
+    return result;
+  };
+
   const fetchProperties = async () => {
     try {
       const response = await fetch(
-        "https://sheets.googleapis.com/v4/spreadsheets/1Uxl7xz6_n3M7wHlJUOBQtlTlW0y2EjcV9nv9eV31TmM/values/Sheet1?key=AIzaSyAaGxNrxDyPUmDJ8nQKOoxATN94MqwI7ww"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy/pub?output=csv"
       );
-      const data = await response.json();
+      const csvText = await response.text();
+      
+      const parsed = parseCSV(csvText);
+      
+      if (parsed.length > 1) {
+        const headers = parsed[0].map(h => h.toLowerCase().replace(/\s+/g, "_"));
+        const rows = parsed.slice(1);
 
-      if (data.values && data.values.length > 1) {
-        const headers = data.values[0];
-        const rows = data.values.slice(1);
-
-        const formattedProperties: Property[] = rows.map((row: string[]) => {
+        const formattedProperties: Property[] = rows.map((row) => {
           const property: any = {};
+          
           headers.forEach((header: string, index: number) => {
-            const key = header.toLowerCase().replace(/\s+/g, "_");
-            let value = row[index] || "";
+            const value = row[index] || "";
 
-            if (key === "amenities" && value) {
-              property[key] = value.split(",").map((item) => item.trim());
-            } else if (key === "images" && value) {
-              property[key] = value.split(",").map((url) => url.trim());
+            if (header.includes("image")) {
+              if (!property.images) property.images = [];
+              if (value) property.images.push(value);
+            } else if (header === "amenities" && value) {
+              property[header] = value.split(";").map((item) => item.trim());
+            } else if (header === "property_id") {
+              property.id = value;
+            } else if (header === "price_per_night") {
+              property.price = value;
             } else {
-              property[key] = value;
+              property[header] = value;
             }
           });
+          
+          if (!property.images || property.images.length === 0) {
+            property.images = ["https://via.placeholder.com/800x600?text=Villa"];
+          }
+          
           return property as Property;
         });
 
         setProperties(formattedProperties);
+        console.log("Fetched properties:", formattedProperties);
       }
     } catch (error) {
       console.error("Error fetching properties:", error);
