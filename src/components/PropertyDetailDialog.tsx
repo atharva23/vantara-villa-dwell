@@ -91,7 +91,7 @@ export const PropertyDetailDialog = ({
         {/* Price & Details */}
         <div className="mb-6 p-4 bg-muted/50 rounded-lg">
           <div className="text-2xl sm:text-3xl font-bold text-primary mb-3">
-            ₹{property.price}
+            {property.price}
             <span className="text-base sm:text-lg font-normal text-muted-foreground"> / night</span>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm sm:text-base text-muted-foreground">
@@ -136,14 +136,15 @@ export const PropertyDetailDialog = ({
         {/* Book Now Button */}
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
           <Button
-            className="flex-1 bg-primary hover:bg-primary/90"
+            className="flex-1 bg-primary hover:bg-primary/90 w-full"
             onClick={onBook}
             size="lg"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
-            Book Now via WhatsApp
+            <span className="hidden sm:inline">Book Now via WhatsApp</span>
+            <span className="sm:hidden">Book via WhatsApp</span>
           </Button>
-          <Button variant="outline" onClick={onClose} size="lg" className="sm:w-auto">
+          <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto">
             Close
           </Button>
         </div>

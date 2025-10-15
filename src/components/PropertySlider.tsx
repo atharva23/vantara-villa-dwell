@@ -71,7 +71,7 @@ export const PropertySlider = ({ properties }: PropertySliderProps) => {
                 </p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-2xl font-bold text-primary">₹{property.price}</span>
+                    <span className="text-2xl font-bold text-primary">{property.price}</span>
                     <span className="text-sm text-muted-foreground"> / night</span>
                   </div>
                 </div>
