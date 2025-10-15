@@ -1,22 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, CalendarIcon, Users, Search, Minus, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const SearchBar = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState<string>("");
+  const [locations, setLocations] = useState<string[]>([]);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [adults, setAdults] = useState<number>(1);
   const [children, setChildren] = useState<number>(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const { data } = await supabase
+        .from('properties')
+        .select('location')
+        .eq('published', true);
+      
+      if (data) {
+        const uniqueLocations = Array.from(new Set(data.map(p => p.location)));
+        setLocations(uniqueLocations);
+      }
+    };
+    
+    fetchLocations();
+  }, []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -37,12 +55,18 @@ export const SearchBar = () => {
         {/* Location */}
         <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-0">
           <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <Input
-            placeholder="Search Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
-          />
+          <Select value={location} onValueChange={setLocation}>
+            <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-base">
+              <SelectValue placeholder="Search Location" />
+            </SelectTrigger>
+            <SelectContent>
+              {locations.map((loc) => (
+                <SelectItem key={loc} value={loc}>
+                  {loc}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Check-in - Check-out */}
