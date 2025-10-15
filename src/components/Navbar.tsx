@@ -22,9 +22,11 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-primary">
-              Vantara Living
-            </h1>
+            <img 
+              src="/vantara-logo.jpeg" 
+              alt="Vantara Living" 
+              className="h-12 md:h-16 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
