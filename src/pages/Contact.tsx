@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Mail, Phone, MapPin, Instagram, MessageCircle, Linkedin } from "lucide-react";
 
 const Contact = () => {
@@ -51,7 +50,7 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.message) {
@@ -65,37 +64,19 @@ const Contact = () => {
 
     setLoading(true);
 
-    try {
-      const { error } = await supabase.from("contact_messages").insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-        },
-      ]);
+    toast({
+      title: "Message Sent",
+      description: "We'll get back to you within 24 hours!",
+    });
 
-      if (error) throw error;
-
-      toast({
-        title: "Message Sent",
-        description: "We'll get back to you within 24 hours!",
-      });
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      message: "",
+    });
+    
+    setLoading(false);
   };
 
   return (

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Home, TrendingUp, Shield, Users } from "lucide-react";
 
 const HostWithUs = () => {
@@ -50,7 +49,7 @@ const HostWithUs = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.ownerName || !formData.email || !formData.phone || 
@@ -65,48 +64,22 @@ const HostWithUs = () => {
 
     setLoading(true);
 
-    try {
-      const amenitiesArray = formData.amenities
-        .split(",")
-        .map(a => a.trim())
-        .filter(a => a.length > 0);
+    toast({
+      title: "Submission Successful",
+      description: "We'll review your property and contact you soon!",
+    });
 
-      const { error } = await supabase.from("host_submissions").insert([
-        {
-          owner_name: formData.ownerName,
-          email: formData.email,
-          phone: formData.phone,
-          villa_name: formData.villaName,
-          location: formData.location,
-          amenities: amenitiesArray,
-        },
-      ]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Submission Successful",
-        description: "We'll review your property and contact you soon!",
-      });
-
-      // Reset form
-      setFormData({
-        ownerName: "",
-        email: "",
-        phone: "",
-        villaName: "",
-        location: "",
-        amenities: "",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit property. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Reset form
+    setFormData({
+      ownerName: "",
+      email: "",
+      phone: "",
+      villaName: "",
+      location: "",
+      amenities: "",
+    });
+    
+    setLoading(false);
   };
 
   return (

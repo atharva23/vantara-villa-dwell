@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "lucide-react";
 
 const BookStay = () => {
@@ -29,7 +28,7 @@ const BookStay = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.phone || !formData.destination || 
@@ -44,51 +43,29 @@ const BookStay = () => {
 
     setLoading(true);
 
-    try {
-      const { error } = await supabase.from("book_stay_inquiries").insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          destination: formData.destination,
-          check_in_date: formData.checkInDate,
-          check_out_date: formData.checkOutDate,
-          no_of_guests: parseInt(formData.noOfGuests),
-        },
-      ]);
+    // Redirect to WhatsApp with pre-filled message
+    const message = encodeURIComponent(
+      `Hi Vantara Living,\n\nI'd like to book a stay:\n\nName: ${formData.name}\nDestination: ${formData.destination}\nCheck-in: ${formData.checkInDate}\nCheck-out: ${formData.checkOutDate}\nGuests: ${formData.noOfGuests}\n\nPlease assist me with the next steps.`
+    );
+    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
 
-      if (error) throw error;
+    toast({
+      title: "Inquiry Submitted",
+      description: "We'll contact you shortly on WhatsApp!",
+    });
 
-      // Redirect to WhatsApp with pre-filled message
-      const message = encodeURIComponent(
-        `Hi Vantara Living,\n\nI'd like to book a stay:\n\nName: ${formData.name}\nDestination: ${formData.destination}\nCheck-in: ${formData.checkInDate}\nCheck-out: ${formData.checkOutDate}\nGuests: ${formData.noOfGuests}\n\nPlease assist me with the next steps.`
-      );
-      window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
-
-      toast({
-        title: "Inquiry Submitted",
-        description: "We'll contact you shortly on WhatsApp!",
-      });
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        destination: "",
-        checkInDate: "",
-        checkOutDate: "",
-        noOfGuests: "",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit inquiry. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      destination: "",
+      checkInDate: "",
+      checkOutDate: "",
+      noOfGuests: "",
+    });
+    
+    setLoading(false);
   };
 
   return (

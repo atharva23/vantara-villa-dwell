@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -7,34 +7,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, CalendarIcon, Users, Search, Minus, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 
 export const SearchBar = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState<string>("");
-  const [locations, setLocations] = useState<string[]>([]);
+  const [locations] = useState<string[]>([
+    "Goa",
+    "Manali",
+    "Udaipur",
+    "Shimla",
+    "Ooty",
+    "Rishikesh",
+    "Coorg",
+    "Lonavala",
+    "Kasauli",
+    "Nainital"
+  ]);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [adults, setAdults] = useState<number>(1);
   const [children, setChildren] = useState<number>(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      const { data } = await supabase
-        .from('properties')
-        .select('location')
-        .eq('published', true);
-      
-      if (data) {
-        const uniqueLocations = Array.from(new Set(data.map(p => p.location)));
-        setLocations(uniqueLocations);
-      }
-    };
-    
-    fetchLocations();
-  }, []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
