@@ -137,15 +137,15 @@ export const PropertyDetailDialog = ({
         {/* Book Now Button */}
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
           <Button
-            className="flex-1 bg-primary hover:bg-primary/90 w-full"
+            className="flex-1 bg-primary hover:bg-primary/90 w-full px-8 py-6 sm:py-3 text-base sm:text-sm"
             onClick={onBook}
             size="lg"
           >
-            <MessageCircle className="mr-2 h-5 w-5" />
-            <span className="hidden sm:inline">Book Now via WhatsApp</span>
-            <span className="sm:hidden">Book via WhatsApp</span>
+            <MessageCircle className="mr-2 h-5 w-5 flex-shrink-0" />
+            <span className="hidden sm:inline whitespace-nowrap">Book Now via WhatsApp</span>
+            <span className="sm:hidden whitespace-nowrap">Book via WhatsApp</span>
           </Button>
-          <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto">
+          <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto py-6 sm:py-3">
             Close
           </Button>
         </div>
