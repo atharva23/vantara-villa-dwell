@@ -306,8 +306,8 @@ const Properties = () => {
                     </div>
 
                     <div className="text-2xl font-bold text-primary pt-2">
-                      <span className="text-sm font-normal text-muted-foreground">starts with </span>
-                      ₹{property.price}
+                      <span className="text-sm font-normal text-muted-foreground">starts from </span>
+                      {property.price}
                       <span className="text-sm font-normal text-muted-foreground"> / night</span>
                     </div>
                   </CardContent>
