@@ -59,7 +59,7 @@ const Home = () => {
           return property as Property;
         });
 
-        setProperties(formattedProperties.slice(0, 6));
+        setProperties(formattedProperties);
       }
     } catch (error) {
       console.error("Error fetching properties:", error);

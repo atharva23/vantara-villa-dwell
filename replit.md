@@ -8,6 +8,21 @@ Vantara Living is a luxury villa rental platform built with React, TypeScript, a
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### October 15, 2025
+- ✅ Removed all Lovable branding (lovable-tagger package and imports from vite.config.ts)
+- ✅ Increased logo size for better visibility (h-16 mobile, h-20 desktop)
+- ✅ Updated home page Featured Villas section to display ALL properties from Google Sheets (previously limited to 6)
+- ✅ Property slider features auto-play carousel with smooth transitions and hover effects
+
+### Previous Updates
+- Successfully removed all Supabase dependencies and converted to frontend-only app
+- Integrated Google Sheets CSV as data source for properties and locations (Sheet ID: 2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy)
+- Implemented mobile-responsive search bar with vertical stacking on phones
+- Fixed location search filtering to properly filter properties by selected location
+- Added custom Vantara Living logo to navbar (stored in /public/vantara-logo.jpeg)
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -35,7 +50,7 @@ Preferred communication style: Simple, everyday language.
 
 **Key Features:**
 - Property search with filters (location, dates, guests)
-- Property browsing with carousel/slider displays
+- Property browsing with carousel/slider displays (auto-play, 4s delay)
 - Detailed property views with image galleries
 - Booking inquiry system (WhatsApp integration)
 - Host onboarding forms
@@ -64,7 +79,7 @@ Preferred communication style: Simple, everyday language.
 
 **NPM Packages:**
 - **UI Components**: @radix-ui/* family for accessible primitives
-- **Carousel**: embla-carousel-react with autoplay plugin
+- **Carousel**: embla-carousel-react with autoplay plugin (4s delay, infinite loop)
 - **Date Handling**: date-fns for date formatting and manipulation
 - **Form Management**: react-hook-form with @hookform/resolvers
 - **Icons**: lucide-react for consistent iconography
@@ -74,7 +89,6 @@ Preferred communication style: Simple, everyday language.
 **Development Tools:**
 - ESLint with TypeScript support for code quality
 - PostCSS with Tailwind and Autoprefixer for styling
-- Lovable-tagger plugin for development mode component tagging
 
 ### Backend/Database Architecture
 
