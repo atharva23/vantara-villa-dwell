@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, MessageCircle, Share2 } from "lucide-react";
+import { MapPin, MessageCircle, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PropertyDetailDialog } from "@/components/PropertyDetailDialog";
 import { format } from "date-fns";
@@ -34,23 +34,18 @@ const Properties = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
-  // Get search params
   const locationParam = searchParams.get("location");
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
   const adults = searchParams.get("adults") || "2";
   const children = searchParams.get("children") || "0";
-  
-  console.log("Search params from URL:", { location: locationParam, checkIn, checkOut, adults, children });
 
-  // Get unique locations from properties
   const locations = ["All", ...Array.from(new Set(properties.map(p => p.location)))];
 
   useEffect(() => {
     fetchPropertiesFromGoogleSheet();
   }, []);
 
-  // Set selected location from URL params when properties are loaded
   useEffect(() => {
     if (locationParam && properties.length > 0) {
       setSelectedLocation(locationParam);
@@ -59,70 +54,82 @@ const Properties = () => {
 
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
-      // Published Google Sheet ID
       const sheetId = "2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy";
       const gid = "1148006823";
-      
-      // Using CSV export for published sheets
       const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
-      
-      console.log("Fetching from URL:", url);
+
       const response = await fetch(url);
       const csvText = await response.text();
-      
-      console.log("CSV Response (first 500 chars):", csvText.substring(0, 500));
-      
-      // Parse CSV to JSON
-      const lines = csvText.split('\n');
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-      
-      console.log("Headers:", headers);
-      
+
+      const lines = csvText.split("\n");
+      const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+
       const parsedProperties: Property[] = [];
-      
+
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
-        
-        // Handle CSV parsing with quoted values
+
         const values: string[] = [];
-        let currentValue = '';
+        let currentValue = "";
         let insideQuotes = false;
-        
+
         for (let j = 0; j < lines[i].length; j++) {
           const char = lines[i][j];
-          
+
           if (char === '"') {
             insideQuotes = !insideQuotes;
-          } else if (char === ',' && !insideQuotes) {
-            values.push(currentValue.trim().replace(/^"|"$/g, ''));
-            currentValue = '';
+          } else if (char === "," && !insideQuotes) {
+            values.push(currentValue.trim().replace(/^"|"$/g, ""));
+            currentValue = "";
           } else {
             currentValue += char;
           }
         }
-        values.push(currentValue.trim().replace(/^"|"$/g, ''));
-        
-        // Columns: Property ID, Name, Location, Description, Price per Night, Image URL 1, Image URL 2, Image URL 3, WhatsApp Number, Booking Link, Amenities, Max Guests, Bedrooms, Bathrooms
-        const images = [values[5], values[6], values[7]].filter(img => img && img.trim());
-        
+        values.push(currentValue.trim().replace(/^"|"$/g, ""));
+
+        // Extract folder ID from Google Drive folder URL
+        const folderUrl = values[5] || "";
+        const folderIdMatch = folderUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+        const folderId = folderIdMatch ? folderIdMatch[1] : "";
+
+        let images: string[] = [];
+
+        if (folderId) {
+          try {
+            // Fetch images from public Google Drive folder using the undocumented API endpoint
+            const driveResponse = await fetch(
+              `https://drive.google.com/drive/folders/${folderId}`
+            );
+            const driveHtml = await driveResponse.text();
+
+            // Parse file IDs from HTML (works for public folders)
+            const fileIdMatches = Array.from(
+              driveHtml.matchAll(/"id":"([a-zA-Z0-9_-]{10,})"/g)
+            );
+
+            images = fileIdMatches.map(match => `https://drive.google.com/uc?export=view&id=${match[1]}`);
+          } catch (err) {
+            console.error("Error fetching images for folder:", folderId, err);
+          }
+        }
+
         parsedProperties.push({
           id: values[0] || "",
           name: values[1] || "",
           location: values[2] || "",
           description: values[3] || "",
-          price: values[4]?.replace('₹', '').replace(',', '') || "",
-          category: "Villa", // Default category
+          price: values[4]?.replace("₹", "").replace(",", "") || "",
+          category: "Villa",
           images: images,
           whatsapp_number: values[8] || "+91 84850 99069",
           book_link: values[9] || "",
-          amenities: values[10] ? values[10].split(",").map((a: string) => a.trim()) : [],
+          amenities: values[10] ? values[10].split(",").map(a => a.trim()) : [],
           max_guests: values[11] || "",
           bedrooms: values[12] || "",
           bathrooms: values[13] || "",
         });
       }
-      
-      console.log("Parsed properties:", parsedProperties);
+
       setProperties(parsedProperties);
     } catch (error) {
       console.error("Error fetching properties:", error);
@@ -137,58 +144,49 @@ const Properties = () => {
   };
 
   const filteredProperties = properties.filter(p => {
-    // Filter by location
-    if (selectedLocation !== "All" && p.location !== selectedLocation) {
-      return false;
-    }
-    
-    // Filter by max guests (adults + children)
+    if (selectedLocation !== "All" && p.location !== selectedLocation) return false;
+
     if (p.max_guests) {
       const totalGuests = parseInt(adults) + parseInt(children);
       const maxGuests = parseInt(p.max_guests);
       return totalGuests <= maxGuests;
     }
-    
+
     return true;
   });
 
   const handleBookNow = (property: Property) => {
-    const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, '');
+    const phoneNumber = property.whatsapp_number.replace(/[^0-9]/g, "");
     let message = `I'm interested in booking ${property.name}`;
-    
-    console.log("Booking params:", { checkIn, checkOut, adults, children });
-    
-    // Add booking details if available
+
     if (checkIn && checkOut) {
       const checkInDate = format(new Date(checkIn), "PPP");
       const checkOutDate = format(new Date(checkOut), "PPP");
       message += `\n\nBooking Details:\nCheck-in: ${checkInDate}\nCheck-out: ${checkOutDate}\nAdults: ${adults}\nChildren: ${children}`;
     }
-    
-    console.log("WhatsApp message:", message);
-    
+
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
   const handleShare = (property: Property) => {
     const shareUrl = window.location.origin + `/properties?property=${property.id}`;
-    
+
     if (navigator.share) {
-      navigator.share({
-        title: property.name,
-        text: `Check out ${property.name} at ${property.location}`,
-        url: shareUrl,
-      }).catch(() => {
-        // Fallback to copying to clipboard
-        navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link copied!",
-          description: "Property link copied to clipboard",
+      navigator
+        .share({
+          title: property.name,
+          text: `Check out ${property.name} at ${property.location}`,
+          url: shareUrl,
+        })
+        .catch(() => {
+          navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Link copied!",
+            description: "Property link copied to clipboard",
+          });
         });
-      });
     } else {
-      // Fallback to copying to clipboard
       navigator.clipboard.writeText(shareUrl);
       toast({
         title: "Link copied!",
@@ -200,7 +198,7 @@ const Properties = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <div className="pt-32 pb-20 px-4">
         <div className="container mx-auto">
           {/* Header */}
@@ -215,7 +213,7 @@ const Properties = () => {
 
           {/* Location Filter */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {locations.map((location) => (
+            {locations.map(location => (
               <Button
                 key={location}
                 onClick={() => setSelectedLocation(location)}
@@ -238,13 +236,13 @@ const Properties = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProperties.map((property) => (
-                <Card 
-                  key={property.id} 
+              {filteredProperties.map(property => (
+                <Card
+                  key={property.id}
                   className="group overflow-hidden border-border hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
                   onClick={() => setSelectedProperty(property)}
                 >
-                  {/* Property Image with Overlay */}
+                  {/* Property Image */}
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
@@ -274,7 +272,7 @@ const Properties = () => {
                     <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
                       {property.name}
                     </h3>
-                    
+
                     <div className="flex items-center text-muted-foreground">
                       <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
                       <span className="text-sm">{property.location}</span>
@@ -313,9 +311,9 @@ const Properties = () => {
                   </CardContent>
 
                   <CardFooter className="pt-0 flex gap-2">
-                    <Button 
+                    <Button
                       className="flex-1 bg-primary hover:bg-primary/90 group-hover:shadow-lg transition-all"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleBookNow(property);
                       }}
@@ -326,7 +324,7 @@ const Properties = () => {
                     <Button
                       size="icon"
                       variant="outline"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleShare(property);
                       }}
@@ -342,7 +340,7 @@ const Properties = () => {
       </div>
 
       <Footer />
-      
+
       {selectedProperty && (
         <PropertyDetailDialog
           property={selectedProperty}
