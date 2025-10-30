@@ -54,7 +54,7 @@ const Properties = () => {
 
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
-      const sheetId = "2PACX-1vT8CNao_YChnXaP-bjX1-hqGGRflUtgUdPXXniwTeTTlBDP32JDtFA_eCw2SiNEyFBEHNTVUq4_iONy";
+      const sheetId = "2PACX-1vT12tHyrXjuP1h8xA_IntzhinKDZXqJSq5J8CmjAuJ2zDvZHfYSY9xh5PWxuObUHWnCgV-4IncGW8Z5";
       const gid = "1148006823";
       const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
 
