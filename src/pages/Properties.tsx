@@ -40,7 +40,7 @@ const Properties = () => {
   const adults = searchParams.get("adults") || "2";
   const children = searchParams.get("children") || "0";
 
-  const locations = ["All", ...Array.from(new Set(properties.map(p => p.location)))];
+  const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
 
   useEffect(() => {
     fetchPropertiesFromGoogleSheet();
@@ -52,6 +52,35 @@ const Properties = () => {
     }
   }, [locationParam, properties]);
 
+  const parseCSV = (csvText: string): string[][] => {
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentValue = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i];
+      if (char === '"') {
+        insideQuotes = !insideQuotes;
+      } else if (char === "," && !insideQuotes) {
+        currentRow.push(currentValue.trim().replace(/^"|"$/g, ""));
+        currentValue = "";
+      } else if (char === "\n" && !insideQuotes) {
+        currentRow.push(currentValue.trim().replace(/^"|"$/g, ""));
+        rows.push(currentRow);
+        currentRow = [];
+        currentValue = "";
+      } else {
+        currentValue += char;
+      }
+    }
+
+    if (currentValue) currentRow.push(currentValue.trim().replace(/^"|"$/g, ""));
+    if (currentRow.length > 0) rows.push(currentRow);
+
+    return rows;
+  };
+
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
       const sheetId =
@@ -61,34 +90,18 @@ const Properties = () => {
 
       const response = await fetch(url);
       const csvText = await response.text();
-
-      const lines = csvText.split("\n");
-      const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-
+      const rows = parseCSV(csvText);
+      const headers = rows[0];
       const parsedProperties: Property[] = [];
-      const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
 
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-
-        const values: string[] = [];
-        let currentValue = "";
-        let insideQuotes = false;
-
-        for (let j = 0; j < lines[i].length; j++) {
-          const char = lines[i][j];
-          if (char === '"') insideQuotes = !insideQuotes;
-          else if (char === "," && !insideQuotes) {
-            values.push(currentValue.trim().replace(/^"|"$/g, ""));
-            currentValue = "";
-          } else currentValue += char;
-        }
-        values.push(currentValue.trim().replace(/^"|"$/g, ""));
+      for (let i = 1; i < rows.length; i++) {
+        const values = rows[i];
+        if (!values || values.length === 0) continue;
 
         const propertyId = values[0]?.trim();
         if (!propertyId) continue;
 
-        // ✅ Fetch all media (images + videos) from S3 folder
+        // ✅ Fetch S3 media for the property
         let mediaUrls: string[] = [];
         try {
           const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${propertyId}/`;
@@ -98,32 +111,37 @@ const Properties = () => {
           const parser = new DOMParser();
           const xml = parser.parseFromString(s3ListXml, "application/xml");
           const keys = Array.from(xml.getElementsByTagName("Key"))
-            .map(el => el.textContent)
+            .map(el => el.textContent || "")
             .filter(
               key =>
                 key &&
                 !key.endsWith("/") &&
-                key.match(
-                  /\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i
-                )
-            );
+                key.match(/\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i)
+            )
+            .map(k => decodeURIComponent(`${s3BucketUrl}/${k}`));
 
-          mediaUrls = keys.map(k => `${s3BucketUrl}/${k}`).slice(0, 100);
+          mediaUrls = keys.slice(0, 100);
         } catch (err) {
           console.error(`Error fetching S3 files for ${propertyId}:`, err);
         }
 
+        // ✅ Build property object
         parsedProperties.push({
           id: propertyId,
           name: values[1] || "",
           location: values[2] || "",
           description: values[3] || "",
-          price: values[4]?.replace("₹", "").replace(",", "") || "",
-          category: "Villa",
+          price: values[4]?.replace(/[₹,]/g, "") || "",
+          category: values[5] || "Villa",
           images: mediaUrls,
           whatsapp_number: values[8] || "+91 84850 99069",
           book_link: values[9] || "",
-          amenities: values[10] ? values[10].split(",").map(a => a.trim()) : [],
+          amenities: values[10]
+            ? values[10]
+                .split(/[,;|]/)
+                .map(a => a.trim())
+                .filter(Boolean)
+            : [],
           max_guests: values[11] || "",
           bedrooms: values[12] || "",
           bathrooms: values[13] || "",
@@ -142,6 +160,8 @@ const Properties = () => {
       setLoading(false);
     }
   };
+
+  const locations = ["All", ...Array.from(new Set(properties.map(p => p.location)))];
 
   const filteredProperties = properties.filter(p => {
     if (selectedLocation !== "All" && p.location !== selectedLocation) return false;
@@ -237,23 +257,21 @@ const Properties = () => {
                 >
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
-                      <>
-                        {property.images[0].match(/\.(mp4|mov|avi|webm)$/i) ? (
-                          <video
-                            src={property.images[0]}
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            loop
-                            muted
-                          />
-                        ) : (
-                          <img
-                            src={property.images[0]}
-                            alt={property.name}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </>
+                      property.images[0].match(/\.(mp4|mov|avi|webm)$/i) ? (
+                        <video
+                          src={property.images[0]}
+                          className="w-full h-full object-cover"
+                          autoPlay
+                          loop
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={property.images[0]}
+                          alt={property.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
                         <span className="text-muted-foreground">No media</span>
@@ -273,6 +291,15 @@ const Properties = () => {
                     <p className="text-muted-foreground text-sm line-clamp-3">
                       {property.description}
                     </p>
+                    {property.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {property.amenities.slice(0, 5).map((a, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {a}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                     <div className="text-2xl font-bold text-primary pt-2">
                       ₹{property.price}
                       <span className="text-sm font-normal text-muted-foreground">
