@@ -39,11 +39,9 @@ export const SearchBar = () => {
       const lines = csvText.split('\n');
       const uniqueLocations = new Set<string>();
       
-      // Skip header row, iterate through data rows
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
         
-        // Handle CSV parsing with quoted values
         const values: string[] = [];
         let currentValue = '';
         let insideQuotes = false;
@@ -62,18 +60,15 @@ export const SearchBar = () => {
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ''));
         
-        // Location is in column index 2 (third column)
         const locationValue = values[2];
         if (locationValue && locationValue.trim()) {
           uniqueLocations.add(locationValue.trim());
         }
       }
       
-      // Convert Set to Array and sort alphabetically
       setLocations(Array.from(uniqueLocations).sort());
     } catch (error) {
       console.error("Error fetching locations:", error);
-      // Fallback to default locations if fetch fails
       setLocations([
         "Goa",
         "Manali",
@@ -112,8 +107,8 @@ export const SearchBar = () => {
             <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm md:text-base">
               <SelectValue placeholder="Search Location" />
             </SelectTrigger>
-            {/* Added scrollable dropdown */}
-            <SelectContent className="max-h-48 overflow-y-auto">
+            {/* Scrollbar always visible */}
+            <SelectContent className="max-h-48 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
               {locations.map((loc) => (
                 <SelectItem key={loc} value={loc}>
                   {loc}
