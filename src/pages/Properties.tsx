@@ -66,6 +66,7 @@ const Properties = () => {
       const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
 
       const parsedProperties: Property[] = [];
+      const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
 
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
@@ -76,44 +77,40 @@ const Properties = () => {
 
         for (let j = 0; j < lines[i].length; j++) {
           const char = lines[i][j];
-
-          if (char === '"') {
-            insideQuotes = !insideQuotes;
-          } else if (char === "," && !insideQuotes) {
+          if (char === '"') insideQuotes = !insideQuotes;
+          else if (char === "," && !insideQuotes) {
             values.push(currentValue.trim().replace(/^"|"$/g, ""));
             currentValue = "";
-          } else {
-            currentValue += char;
-          }
+          } else currentValue += char;
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ""));
 
         const propertyId = values[0]?.trim();
         if (!propertyId) continue;
 
-        // ✅ Fetch images from S3 dynamically
-        const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
-        let imageUrls: string[] = [];
-
+        // ✅ Fetch all media (images + videos) from S3 folder
+        let mediaUrls: string[] = [];
         try {
-          const s3ListResponse = await fetch(`${s3BucketUrl}?prefix=${propertyId}/`);
+          const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${propertyId}/`;
+          const s3ListResponse = await fetch(listUrl);
           const s3ListXml = await s3ListResponse.text();
+
           const parser = new DOMParser();
           const xml = parser.parseFromString(s3ListXml, "application/xml");
           const keys = Array.from(xml.getElementsByTagName("Key"))
             .map(el => el.textContent)
             .filter(
-              k =>
-                k &&
-                (k.endsWith(".jpg") ||
-                  k.endsWith(".png") ||
-                  k.endsWith(".jpeg") ||
-                  k.endsWith(".webp"))
+              key =>
+                key &&
+                !key.endsWith("/") &&
+                key.match(
+                  /\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i
+                )
             );
 
-          imageUrls = keys.slice(0, 100).map(k => `${s3BucketUrl}/${k}`);
+          mediaUrls = keys.map(k => `${s3BucketUrl}/${k}`).slice(0, 100);
         } catch (err) {
-          console.error(`Error fetching S3 images for ${propertyId}:`, err);
+          console.error(`Error fetching S3 files for ${propertyId}:`, err);
         }
 
         parsedProperties.push({
@@ -123,7 +120,7 @@ const Properties = () => {
           description: values[3] || "",
           price: values[4]?.replace("₹", "").replace(",", "") || "",
           category: "Villa",
-          images: imageUrls,
+          images: mediaUrls,
           whatsapp_number: values[8] || "+91 84850 99069",
           book_link: values[9] || "",
           amenities: values[10] ? values[10].split(",").map(a => a.trim()) : [],
@@ -148,13 +145,11 @@ const Properties = () => {
 
   const filteredProperties = properties.filter(p => {
     if (selectedLocation !== "All" && p.location !== selectedLocation) return false;
-
     if (p.max_guests) {
       const totalGuests = parseInt(adults) + parseInt(children);
       const maxGuests = parseInt(p.max_guests);
       return totalGuests <= maxGuests;
     }
-
     return true;
   });
 
@@ -174,7 +169,6 @@ const Properties = () => {
 
   const handleShare = (property: Property) => {
     const shareUrl = window.location.origin + `/properties?property=${property.id}`;
-
     if (navigator.share) {
       navigator
         .share({
@@ -204,7 +198,6 @@ const Properties = () => {
 
       <div className="pt-32 pb-20 px-4">
         <div className="container mx-auto">
-          {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Our Luxury Villas
@@ -214,120 +207,91 @@ const Properties = () => {
             </p>
           </div>
 
-          {/* Location Filter */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
             {locations.map(location => (
               <Button
                 key={location}
                 onClick={() => setSelectedLocation(location)}
                 variant={selectedLocation === location ? "default" : "outline"}
-                className={selectedLocation === location ? "bg-primary" : ""}
               >
                 {location}
               </Button>
             ))}
           </div>
 
-          {/* Properties Grid */}
           {loading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading properties...</p>
             </div>
           ) : filteredProperties.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No properties found in this location.</p>
+              <p className="text-muted-foreground">No properties found.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProperties.map(property => (
                 <Card
                   key={property.id}
-                  className="group overflow-hidden border-border hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
+                  className="group overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
                   onClick={() => setSelectedProperty(property)}
                 >
-                  {/* Property Image */}
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
-                        <img
-                          src={property.images[0]}
-                          alt={property.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {property.images[0].match(/\.(mp4|mov|avi|webm)$/i) ? (
+                          <video
+                            src={property.images[0]}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={property.images[0]}
+                            alt={property.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <span className="text-muted-foreground">No image</span>
+                        <span className="text-muted-foreground">No media</span>
                       </div>
                     )}
-                    <Badge className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm">
+                    <Badge className="absolute top-4 right-4 bg-primary/90">
                       {property.category}
                     </Badge>
-                    {property.images && property.images.length > 1 && (
-                      <Badge
-                        variant="secondary"
-                        className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm"
-                      >
-                        +{property.images.length - 1} photos
-                      </Badge>
-                    )}
                   </div>
 
                   <CardContent className="pt-6 space-y-3">
-                    <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                      {property.name}
-                    </h3>
-
+                    <h3 className="text-xl font-bold">{property.name}</h3>
                     <div className="flex items-center text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                      <MapPin className="h-4 w-4 mr-1" />
                       <span className="text-sm">{property.location}</span>
                     </div>
-
-                    <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
+                    <p className="text-muted-foreground text-sm line-clamp-3">
                       {property.description}
                     </p>
-
-                    {property.amenities && property.amenities.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {property.amenities.slice(0, 3).map((amenity, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {amenity}
-                          </Badge>
-                        ))}
-                        {property.amenities.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{property.amenities.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
-                      {property.bedrooms && <span>🛏️ {property.bedrooms} Beds</span>}
-                      {property.bathrooms && <span>🚿 {property.bathrooms} Baths</span>}
-                      {property.max_guests && <span>👥 {property.max_guests} Guests</span>}
-                    </div>
-
                     <div className="text-2xl font-bold text-primary pt-2">
-                      <span className="text-sm font-normal text-muted-foreground">
-                        starts from{" "}
-                      </span>
                       ₹{property.price}
-                      <span className="text-sm font-normal text-muted-foreground"> / night</span>
+                      <span className="text-sm font-normal text-muted-foreground">
+                        {" "}
+                        / night
+                      </span>
                     </div>
                   </CardContent>
 
                   <CardFooter className="pt-0 flex gap-2">
                     <Button
-                      className="flex-1 bg-primary hover:bg-primary/90 group-hover:shadow-lg transition-all"
+                      className="flex-1 bg-primary hover:bg-primary/90"
                       onClick={e => {
                         e.stopPropagation();
                         handleBookNow(property);
                       }}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
-                      Book Now via WhatsApp
+                      WhatsApp
                     </Button>
                     <Button
                       size="icon"
