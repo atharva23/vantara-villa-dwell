@@ -87,31 +87,10 @@ const Properties = () => {
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ""));
 
-        // Extract folder ID from Google Drive folder URL
-        const folderUrl = values[5] || "";
-        const folderIdMatch = folderUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-        const folderId = folderIdMatch ? folderIdMatch[1] : "";
-
-        let images: string[] = [];
-
-        if (folderId) {
-          try {
-            // Fetch images from public Google Drive folder using the undocumented API endpoint
-            const driveResponse = await fetch(
-              `https://drive.google.com/drive/folders/${folderId}`
-            );
-            const driveHtml = await driveResponse.text();
-
-            // Parse file IDs from HTML (works for public folders)
-            const fileIdMatches = Array.from(
-              driveHtml.matchAll(/"id":"([a-zA-Z0-9_-]{10,})"/g)
-            );
-
-            images = fileIdMatches.map(match => `https://drive.google.com/uc?export=view&id=${match[1]}`);
-          } catch (err) {
-            console.error("Error fetching images for folder:", folderId, err);
-          }
-        }
+        // ✅ Get image URLs directly from the CSV columns
+        const imageUrls = [values[5], values[6], values[7]]
+          .filter(Boolean)
+          .map(url => url.trim());
 
         parsedProperties.push({
           id: values[0] || "",
@@ -120,7 +99,7 @@ const Properties = () => {
           description: values[3] || "",
           price: values[4]?.replace("₹", "").replace(",", "") || "",
           category: "Villa",
-          images: images,
+          images: imageUrls,
           whatsapp_number: values[8] || "+91 84850 99069",
           book_link: values[9] || "",
           amenities: values[10] ? values[10].split(",").map(a => a.trim()) : [],
