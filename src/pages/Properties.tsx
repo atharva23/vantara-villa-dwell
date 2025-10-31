@@ -54,7 +54,8 @@ const Properties = () => {
 
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
-      const sheetId = "2PACX-1vT12tHyrXjuP1h8xA_IntzhinKDZXqJSq5J8CmjAuJ2zDvZHfYSY9xh5PWxuObUHWnCgV-4IncGW8Z5";
+      const sheetId =
+        "2PACX-1vT12tHyrXjuP1h8xA_IntzhinKDZXqJSq5J8CmjAuJ2zDvZHfYSY9xh5PWxuObUHWnCgV-4IncGW8Z5";
       const gid = "870502534";
       const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
 
@@ -87,13 +88,36 @@ const Properties = () => {
         }
         values.push(currentValue.trim().replace(/^"|"$/g, ""));
 
-        // ✅ Get image URLs directly from the CSV columns
-        const imageUrls = [values[5], values[6], values[7]]
-          .filter(Boolean)
-          .map(url => url.trim());
+        const propertyId = values[0]?.trim();
+        if (!propertyId) continue;
+
+        // ✅ Fetch images from S3 dynamically
+        const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
+        let imageUrls: string[] = [];
+
+        try {
+          const s3ListResponse = await fetch(`${s3BucketUrl}?prefix=${propertyId}/`);
+          const s3ListXml = await s3ListResponse.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(s3ListXml, "application/xml");
+          const keys = Array.from(xml.getElementsByTagName("Key"))
+            .map(el => el.textContent)
+            .filter(
+              k =>
+                k &&
+                (k.endsWith(".jpg") ||
+                  k.endsWith(".png") ||
+                  k.endsWith(".jpeg") ||
+                  k.endsWith(".webp"))
+            );
+
+          imageUrls = keys.slice(0, 100).map(k => `${s3BucketUrl}/${k}`);
+        } catch (err) {
+          console.error(`Error fetching S3 images for ${propertyId}:`, err);
+        }
 
         parsedProperties.push({
-          id: values[0] || "",
+          id: propertyId,
           name: values[1] || "",
           location: values[2] || "",
           description: values[3] || "",
@@ -114,7 +138,7 @@ const Properties = () => {
       console.error("Error fetching properties:", error);
       toast({
         title: "Error",
-        description: "Failed to load properties from Google Sheets",
+        description: "Failed to load properties from Google Sheets or S3",
         variant: "destructive",
       });
     } finally {
@@ -241,7 +265,10 @@ const Properties = () => {
                       {property.category}
                     </Badge>
                     {property.images && property.images.length > 1 && (
-                      <Badge variant="secondary" className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm">
+                      <Badge
+                        variant="secondary"
+                        className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm"
+                      >
                         +{property.images.length - 1} photos
                       </Badge>
                     )}
@@ -283,7 +310,9 @@ const Properties = () => {
                     </div>
 
                     <div className="text-2xl font-bold text-primary pt-2">
-                      <span className="text-sm font-normal text-muted-foreground">starts from </span>
+                      <span className="text-sm font-normal text-muted-foreground">
+                        starts from{" "}
+                      </span>
                       ₹{property.price}
                       <span className="text-sm font-normal text-muted-foreground"> / night</span>
                     </div>
