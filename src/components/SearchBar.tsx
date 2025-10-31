@@ -112,7 +112,8 @@ export const SearchBar = () => {
             <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm md:text-base">
               <SelectValue placeholder="Search Location" />
             </SelectTrigger>
-            <SelectContent>
+            {/* Added scrollable dropdown */}
+            <SelectContent className="max-h-48 overflow-y-auto">
               {locations.map((loc) => (
                 <SelectItem key={loc} value={loc}>
                   {loc}
