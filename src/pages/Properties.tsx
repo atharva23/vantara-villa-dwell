@@ -359,8 +359,6 @@ const Properties = () => {
         </div>
       </div>
 
-      <Footer />
-
       {selectedProperty && (
         <PropertyDetailDialog
           property={selectedProperty}
