@@ -259,16 +259,22 @@ const Properties = () => {
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
-                        {property.images[0]?.match(/\.(mp4|mov|avi|webm)$/i) ? (
+                        {property.images[0]?.toLowerCase().match(/\.(mp4|mov|avi|webm)$/i) ? (
                           <video
-                            src={property.images[0]}
+                            key={property.images[0]}
                             className="w-full h-full object-cover"
                             autoPlay
                             loop
                             muted
                             playsInline
-                            preload="metadata"
-                          />
+                            preload="auto"
+                            onError={(e) => {
+                              console.error(`Video failed to load: ${property.images[0]}`, e);
+                            }}
+                          >
+                            <source src={property.images[0]} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
                         ) : (
                           <img
                             src={property.images[0]}
