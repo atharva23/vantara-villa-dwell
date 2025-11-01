@@ -47,7 +47,7 @@ const BookStay = () => {
     const message = encodeURIComponent(
       `Hi Vantara Living,\n\nI'd like to book a stay:\n\nName: ${formData.name}\nDestination: ${formData.destination}\nCheck-in: ${formData.checkInDate}\nCheck-out: ${formData.checkOutDate}\nGuests: ${formData.noOfGuests}\n\nPlease assist me with the next steps.`
     );
-    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
+    window.open(`https://wa.me/+918485099069?text=${message}`, "_blank");
 
     toast({
       title: "Inquiry Submitted",
