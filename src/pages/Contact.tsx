@@ -222,7 +222,6 @@ const Contact = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };
