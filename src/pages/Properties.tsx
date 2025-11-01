@@ -259,30 +259,38 @@ const Properties = () => {
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
-                        {property.images[0]?.toLowerCase().match(/\.(mp4|mov|avi|webm)$/i) ? (
-                          <video
-                            key={property.images[0]}
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            preload="auto"
-                            onError={(e) => {
-                              console.error(`Video failed to load: ${property.images[0]}`, e);
-                            }}
-                          >
-                            <source src={property.images[0]} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        ) : (
-                          <img
-                            src={property.images[0]}
-                            alt={property.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        )}
+                        {(() => {
+                          const firstMedia = property.images[0];
+                          const isVideo = /\.(mp4|mov|avi|webm)$/i.test(firstMedia);
+                          console.log('Media URL:', firstMedia, 'Is Video:', isVideo);
+                          
+                          return isVideo ? (
+                            <video
+                              key={firstMedia}
+                              className="w-full h-full object-cover"
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              preload="auto"
+                              onLoadedData={() => console.log('Video loaded successfully')}
+                              onError={(e) => {
+                                console.error(`Video failed to load: ${firstMedia}`, e);
+                              }}
+                            >
+                              <source src={firstMedia} type="video/mp4" />
+                              Your browser does not support the video tag.
+                            </video>
+                          ) : (
+                            <img
+                              src={firstMedia}
+                              alt={property.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              onLoad={() => console.log('Image loaded:', firstMedia)}
+                            />
+                          );
+                        })()}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
