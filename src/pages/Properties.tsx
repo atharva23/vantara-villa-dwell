@@ -158,10 +158,10 @@ const Properties = () => {
           })
           .filter(Boolean);
 
-        // Sort: Videos first, then images
+        // Sort: Images first, then videos
         mediaFiles.sort((a, b) => {
-          if (a!.isVideo && !b!.isVideo) return -1;
-          if (!a!.isVideo && b!.isVideo) return 1;
+          if (!a!.isVideo && b!.isVideo) return -1;
+          if (a!.isVideo && !b!.isVideo) return 1;
           return 0;
         });
 
@@ -281,46 +281,26 @@ const Properties = () => {
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
-                        {(() => {
-                          const firstMedia = property.images[0];
-                          
-                          // Try to detect if it's a video by checking Content-Type
-                          // For now, we'll render as image and let browser handle it
-                          return (
-                            <div className="w-full h-full relative">
-                              {/* Try video first with fallback to image */}
-                              <video
-                                key={firstMedia}
-                                className="w-full h-full object-cover"
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                preload="auto"
-                                onError={(e) => {
-                                  // Hide video and show image on error
-                                  e.currentTarget.style.display = 'none';
-                                  const img = e.currentTarget.nextElementSibling as HTMLImageElement;
-                                  if (img) img.style.display = 'block';
-                                }}
-                                onLoadedData={(e) => {
-                                  // If video loads, hide the image
-                                  const img = e.currentTarget.nextElementSibling as HTMLImageElement;
-                                  if (img) img.style.display = 'none';
-                                }}
-                              >
-                                <source src={firstMedia} type="video/mp4" />
-                              </video>
-                              <img
-                                src={firstMedia}
-                                alt={property.name}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                                style={{ display: 'none' }}
-                              />
-                            </div>
-                          );
-                        })()}
+                        {property.images[0]?.match(/\.(mp4|mov|avi|webm)$/i) ? (
+                          <video
+                            key={property.images[0]}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                          >
+                            <source src={property.images[0]} type="video/mp4" />
+                          </video>
+                        ) : (
+                          <img
+                            src={property.images[0]}
+                            alt={property.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        )}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
