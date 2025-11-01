@@ -259,14 +259,15 @@ const Properties = () => {
                   <div className="relative h-72 bg-muted overflow-hidden">
                     {property.images && property.images.length > 0 ? (
                       <>
-                        {property.images[0].match(/\.(mp4|mov|avi|webm)$/i) ? (
+                        {property.images[0]?.match(/\.(mp4|mov|avi|webm)$/i) ? (
                           <video
                             src={property.images[0]}
                             className="w-full h-full object-cover"
                             autoPlay
                             loop
                             muted
-                            loading="lazy"
+                            playsInline
+                            preload="metadata"
                           />
                         ) : (
                           <img
