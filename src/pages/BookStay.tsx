@@ -202,7 +202,6 @@ const BookStay = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };
