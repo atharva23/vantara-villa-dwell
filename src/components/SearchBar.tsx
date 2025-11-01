@@ -107,10 +107,10 @@ export const SearchBar = () => {
             <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm md:text-base">
               <SelectValue placeholder="Search Location" />
             </SelectTrigger>
-            {/* Scrollbar always visible */}
-            <SelectContent className="max-h-48 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+            {/* Beautiful custom scrollbar */}
+            <SelectContent className="max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-gray-100 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
+                <SelectItem key={loc} value={loc} className="cursor-pointer">
                   {loc}
                 </SelectItem>
               ))}
@@ -223,34 +223,4 @@ export const SearchBar = () => {
                     onClick={() => setChildren(Math.max(0, children - 1))}
                     className="h-8 w-8 rounded-full"
                   >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-8 text-center font-medium">{children}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setChildren(children + 1)}
-                    className="h-8 w-8 rounded-full"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Search Button */}
-        <div className="p-3 md:p-2">
-          <Button 
-            onClick={handleSearch}
-            className="w-full md:w-auto h-10 md:h-12 md:rounded-full rounded-lg bg-primary hover:bg-primary/90"
-          >
-            <Search className="h-5 w-5 md:mr-0 mr-2" />
-            <span className="md:hidden">Search</span>
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
+                    <Minus className=
