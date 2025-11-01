@@ -223,4 +223,34 @@ export const SearchBar = () => {
                     onClick={() => setChildren(Math.max(0, children - 1))}
                     className="h-8 w-8 rounded-full"
                   >
-                    <Minus className=
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-8 text-center font-medium">{children}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setChildren(children + 1)}
+                    className="h-8 w-8 rounded-full"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Search Button */}
+        <div className="p-3 md:p-2">
+          <Button 
+            onClick={handleSearch}
+            className="w-full md:w-auto h-10 md:h-12 md:rounded-full rounded-lg bg-primary hover:bg-primary/90"
+          >
+            <Search className="h-5 w-5 md:mr-0 mr-2" />
+            <span className="md:hidden">Search</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
