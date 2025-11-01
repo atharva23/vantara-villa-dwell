@@ -121,7 +121,6 @@ const Destinations = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };
