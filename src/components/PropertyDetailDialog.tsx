@@ -61,22 +61,42 @@ export const PropertyDetailDialog = ({
           </div>
         </DialogHeader>
 
-        {/* Image Carousel */}
+        {/* Image/Video Carousel */}
         {property.images && property.images.length > 0 && (
           <div className="mb-6">
             <Carousel className="w-full">
               <CarouselContent>
-                {property.images.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <div className="relative h-[250px] sm:h-[400px] rounded-lg overflow-hidden">
-                      <img
-                        src={image}
-                        alt={`${property.name} - Image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
+                {property.images.map((media, index) => {
+                  const isVideo = /\.(mp4|mov|avi|webm)$/i.test(media);
+                  
+                  return (
+                    <CarouselItem key={index}>
+                      <div className="relative h-[250px] sm:h-[400px] rounded-lg overflow-hidden bg-muted">
+                        {isVideo ? (
+                          <video
+                            src={media}
+                            className="w-full h-full object-cover"
+                            controls
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="metadata"
+                          >
+                            <source src={media} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : (
+                          <img
+                            src={media}
+                            alt={`${property.name} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
               </CarouselContent>
               {property.images.length > 1 && (
                 <>
