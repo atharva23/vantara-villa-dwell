@@ -112,7 +112,6 @@ const Properties = () => {
         } catch (err) {
           console.error(`Error fetching S3 files for ${propertyId}:`, err);
         }
-
         parsedProperties.push({
           id: propertyId,
           name: values[1] || "",
@@ -121,12 +120,12 @@ const Properties = () => {
           price: values[4]?.replace("₹", "").replace(",", "") || "",
           category: "Villa",
           images: mediaUrls,
-          whatsapp_number: values[8] || "+91 84850 99069",
-          book_link: values[9] || "",
-          amenities: values[10] ? values[10].split(",").map(a => a.trim()) : [],
-          max_guests: values[11] || "",
-          bedrooms: values[12] || "",
-          bathrooms: values[13] || "",
+          whatsapp_number: values[5] || "+91 84850 99069",  
+          book_link: values[6] || "",                        
+          amenities: values[7] ? values[7].split(",").map(a => a.trim()) : [], 
+          max_guests: values[8] || "",                       
+          bedrooms: values[9] || "",                         
+          bathrooms: values[10] || "",                        
         });
       }
 
