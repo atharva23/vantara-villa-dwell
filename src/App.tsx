@@ -13,6 +13,7 @@ import BookStay from "./pages/BookStay";
 import HostWithUs from "./pages/HostWithUs";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import WhatsAppFloat from "./components/WhatsAppFloat"; 
 
 const queryClient = new QueryClient();
 
@@ -31,10 +32,10 @@ const App = () => (
           <Route path="/book" element={<BookStay />} />
           <Route path="/host" element={<HostWithUs />} />
           <Route path="/contact" element={<Contact />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
+        <WhatsAppFloat /> {/* Add this line */}
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
