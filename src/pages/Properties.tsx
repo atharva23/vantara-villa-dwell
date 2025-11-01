@@ -128,22 +128,44 @@ const Properties = () => {
     // Load images for all properties in parallel
     const imagePromises = propertiesList.map(async (property) => {
       try {
-        const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${property.id}/&max-keys=5`;
+        const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${property.id}/&max-keys=10`;
         const s3ListResponse = await fetch(listUrl);
         const s3ListXml = await s3ListResponse.text();
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(s3ListXml, "application/xml");
-        const keys = Array.from(xml.getElementsByTagName("Key"))
-          .map(el => el.textContent)
-          .filter(
-            key =>
-              key &&
-              !key.endsWith("/") &&
-              key.match(/\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i)
-          );
+        
+        // Get all media files
+        const contents = Array.from(xml.getElementsByTagName("Contents"));
+        const mediaFiles = contents
+          .map(content => {
+            const keyEl = content.querySelector("Key");
+            const key = keyEl?.textContent;
+            
+            if (!key || key.endsWith("/")) return null;
+            
+            // Check if file extension matches media files
+            const hasMediaExtension = key.match(/\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i);
+            if (!hasMediaExtension) return null;
+            
+            const isVideo = /\.(mp4|mov|avi|webm)$/i.test(key);
+            
+            return {
+              url: `${s3BucketUrl}/${key}`,
+              key: key,
+              isVideo: isVideo
+            };
+          })
+          .filter(Boolean);
 
-        const mediaUrls = keys.map(k => `${s3BucketUrl}/${k}`).slice(0, 5);
+        // Sort: Videos first, then images
+        mediaFiles.sort((a, b) => {
+          if (a!.isVideo && !b!.isVideo) return -1;
+          if (!a!.isVideo && b!.isVideo) return 1;
+          return 0;
+        });
+
+        const mediaUrls = mediaFiles.slice(0, 5).map(f => f!.url);
         
         return { id: property.id, images: mediaUrls };
       } catch (err) {
@@ -261,34 +283,42 @@ const Properties = () => {
                       <>
                         {(() => {
                           const firstMedia = property.images[0];
-                          const isVideo = /\.(mp4|mov|avi|webm)$/i.test(firstMedia);
-                          console.log('Media URL:', firstMedia, 'Is Video:', isVideo);
                           
-                          return isVideo ? (
-                            <video
-                              key={firstMedia}
-                              className="w-full h-full object-cover"
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              preload="auto"
-                              onLoadedData={() => console.log('Video loaded successfully')}
-                              onError={(e) => {
-                                console.error(`Video failed to load: ${firstMedia}`, e);
-                              }}
-                            >
-                              <source src={firstMedia} type="video/mp4" />
-                              Your browser does not support the video tag.
-                            </video>
-                          ) : (
-                            <img
-                              src={firstMedia}
-                              alt={property.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                              onLoad={() => console.log('Image loaded:', firstMedia)}
-                            />
+                          // Try to detect if it's a video by checking Content-Type
+                          // For now, we'll render as image and let browser handle it
+                          return (
+                            <div className="w-full h-full relative">
+                              {/* Try video first with fallback to image */}
+                              <video
+                                key={firstMedia}
+                                className="w-full h-full object-cover"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="auto"
+                                onError={(e) => {
+                                  // Hide video and show image on error
+                                  e.currentTarget.style.display = 'none';
+                                  const img = e.currentTarget.nextElementSibling as HTMLImageElement;
+                                  if (img) img.style.display = 'block';
+                                }}
+                                onLoadedData={(e) => {
+                                  // If video loads, hide the image
+                                  const img = e.currentTarget.nextElementSibling as HTMLImageElement;
+                                  if (img) img.style.display = 'none';
+                                }}
+                              >
+                                <source src={firstMedia} type="video/mp4" />
+                              </video>
+                              <img
+                                src={firstMedia}
+                                alt={property.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                style={{ display: 'none' }}
+                              />
+                            </div>
                           );
                         })()}
                       </>
