@@ -54,8 +54,7 @@ const Properties = () => {
 
   const fetchPropertiesFromGoogleSheet = async () => {
     try {
-      const sheetId =
-        "2PACX-1vT12tHyrXjuP1h8xA_IntzhinKDZXqJSq5J8CmjAuJ2zDvZHfYSY9xh5PWxuObUHWnCgV-4IncGW8Z5";
+      const sheetId = "2PACX-1vT12tHyrXjuP1h8xA_IntzhinKDZXqJSq5J8CmjAuJ2zDvZHfYSY9xh5PWxuObUHWnCgV-4IncGW8Z5";
       const gid = "870502534";
       const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
 
@@ -66,7 +65,6 @@ const Properties = () => {
       const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
 
       const parsedProperties: Property[] = [];
-      const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
 
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
@@ -88,30 +86,7 @@ const Properties = () => {
         const propertyId = values[0]?.trim();
         if (!propertyId) continue;
 
-        // ✅ Fetch all media (images + videos) from S3 folder
-        let mediaUrls: string[] = [];
-        try {
-          const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${propertyId}/`;
-          const s3ListResponse = await fetch(listUrl);
-          const s3ListXml = await s3ListResponse.text();
-
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(s3ListXml, "application/xml");
-          const keys = Array.from(xml.getElementsByTagName("Key"))
-            .map(el => el.textContent)
-            .filter(
-              key =>
-                key &&
-                !key.endsWith("/") &&
-                key.match(
-                  /\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i
-                )
-            );
-
-          mediaUrls = keys.map(k => `${s3BucketUrl}/${k}`).slice(0, 100);
-        } catch (err) {
-          console.error(`Error fetching S3 files for ${propertyId}:`, err);
-        }
+        // ✅ OPTIMIZATION: Load images lazily, store just the property ID for now
         parsedProperties.push({
           id: propertyId,
           name: values[1] || "",
@@ -119,27 +94,74 @@ const Properties = () => {
           description: values[3] || "",
           price: values[4]?.replace("₹", "").replace(",", "") || "",
           category: "Villa",
-          images: mediaUrls,
-          whatsapp_number: values[5] || "+91 84850 99069",  
-          book_link: values[6] || "",                        
-          amenities: values[7] ? values[7].split(",").map(a => a.trim()) : [], 
-          max_guests: values[8] || "",                       
-          bedrooms: values[9] || "",                         
-          bathrooms: values[10] || "",                        
+          images: [], // Will be loaded on-demand
+          whatsapp_number: values[5] || "+91 84850 99069",
+          book_link: values[6] || "",
+          amenities: values[7] ? values[7].split(",").map(a => a.trim()) : [],
+          max_guests: values[8] || "",
+          bedrooms: values[9] || "",
+          bathrooms: values[10] || "",
         });
       }
 
       setProperties(parsedProperties);
+      
+      // ✅ Load images for all properties in parallel after initial render
+      loadAllPropertyImages(parsedProperties);
+      
     } catch (error) {
       console.error("Error fetching properties:", error);
       toast({
         title: "Error",
-        description: "Failed to load properties from Google Sheets or S3",
+        description: "Failed to load properties from Google Sheets",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✅ Load images in background after page loads
+  const loadAllPropertyImages = async (propertiesList: Property[]) => {
+    const s3BucketUrl = "https://vantara-living.s3.us-east-1.amazonaws.com";
+    
+    // Load images for all properties in parallel
+    const imagePromises = propertiesList.map(async (property) => {
+      try {
+        const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${property.id}/&max-keys=5`;
+        const s3ListResponse = await fetch(listUrl);
+        const s3ListXml = await s3ListResponse.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(s3ListXml, "application/xml");
+        const keys = Array.from(xml.getElementsByTagName("Key"))
+          .map(el => el.textContent)
+          .filter(
+            key =>
+              key &&
+              !key.endsWith("/") &&
+              key.match(/\.(jpg|jpeg|png|webp|gif|heic|mp4|mov|avi|webm)$/i)
+          );
+
+        const mediaUrls = keys.map(k => `${s3BucketUrl}/${k}`).slice(0, 5);
+        
+        return { id: property.id, images: mediaUrls };
+      } catch (err) {
+        console.error(`Error fetching S3 files for ${property.id}:`, err);
+        return { id: property.id, images: [] };
+      }
+    });
+
+    // Wait for all images to load
+    const results = await Promise.all(imagePromises);
+    
+    // Update properties with images
+    setProperties(prev => 
+      prev.map(property => {
+        const result = results.find(r => r.id === property.id);
+        return result ? { ...property, images: result.images } : property;
+      })
+    );
   };
 
   const filteredProperties = properties.filter(p => {
@@ -244,18 +266,20 @@ const Properties = () => {
                             autoPlay
                             loop
                             muted
+                            loading="lazy"
                           />
                         ) : (
                           <img
                             src={property.images[0]}
                             alt={property.name}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         )}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <span className="text-muted-foreground">No media</span>
+                        <span className="text-muted-foreground">Loading...</span>
                       </div>
                     )}
                     <Badge className="absolute top-4 right-4 bg-primary/90">
