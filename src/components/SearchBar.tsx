@@ -107,8 +107,10 @@ export const SearchBar = () => {
             <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm md:text-base">
               <SelectValue placeholder="Search Location" />
             </SelectTrigger>
-            {/* Beautiful custom scrollbar */}
-            <SelectContent className="max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-gray-100 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+            {/* Beautiful custom scrollbar - only shows when more than 4 items */}
+            <SelectContent className={cn(
+              locations.length > 4 && "max-h-[200px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-gray-100 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400"
+            )}>
               {locations.map((loc) => (
                 <SelectItem key={loc} value={loc} className="cursor-pointer">
                   {loc}
