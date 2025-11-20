@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PropertyDetailDialog } from "@/components/PropertyDetailDialog";
 import { format } from "date-fns";
 
+
 interface Property {
   id: string;
   name: string;
