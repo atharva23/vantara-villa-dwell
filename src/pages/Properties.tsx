@@ -165,7 +165,7 @@ const Properties = () => {
           return 0;
         });
 
-        const mediaUrls = mediaFiles.slice(0, 5).map(f => f!.url);
+        const mediaUrls = mediaFiles.map(f => f!.url);
         
         return { id: property.id, images: mediaUrls };
       } catch (err) {
