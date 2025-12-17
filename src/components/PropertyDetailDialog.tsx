@@ -45,7 +45,7 @@ export const PropertyDetailDialog = ({
 }: PropertyDetailDialogProps) => {
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-4 sm:p-6">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -63,20 +63,20 @@ export const PropertyDetailDialog = ({
 
         {/* Image/Video Carousel - FIXED */}
         {property.images && property.images.length > 0 && (
-          <div className="mb-6 w-full">
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
+          <div className="mb-6 w-full overflow-hidden">
+            <Carousel className="w-full max-w-full">
+              <CarouselContent className="ml-0">
                 {property.images.map((media, index) => {
                   const isVideo = /\.(mp4|mov|avi|webm)$/i.test(media);
                   
                   return (
-                    <CarouselItem key={index} className="pl-2 md:pl-4">
+                    <CarouselItem key={index} className="pl-0 basis-full">
                       {/* ✅ FIXED: Added proper container constraints */}
                       <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
                         {isVideo ? (
                           <video
                             src={media}
-                            className="absolute inset-0 w-full h-full object-contain bg-black"
+                            className="w-full h-full object-contain bg-black"
                             controls
                             loop
                             muted
@@ -90,7 +90,7 @@ export const PropertyDetailDialog = ({
                           <img
                             src={media}
                             alt={`${property.name} - Image ${index + 1}`}
-                            className="absolute inset-0 w-full h-full object-contain bg-muted"
+                            className="w-full h-full object-contain bg-muted"
                             loading="lazy"
                           />
                         )}
