@@ -61,23 +61,23 @@ export const PropertyDetailDialog = ({
           </div>
         </DialogHeader>
 
-        {/* Image/Video Carousel */}
+        {/* Image/Video Carousel - FIXED */}
         {property.images && property.images.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6 w-full">
             <Carousel className="w-full">
-              <CarouselContent>
+              <CarouselContent className="-ml-2 md:-ml-4">
                 {property.images.map((media, index) => {
                   const isVideo = /\.(mp4|mov|avi|webm)$/i.test(media);
                   
                   return (
-                    <CarouselItem key={index}>
-                      <div className="relative h-[250px] sm:h-[400px] rounded-lg overflow-hidden bg-muted">
+                    <CarouselItem key={index} className="pl-2 md:pl-4">
+                      {/* ✅ FIXED: Added proper container constraints */}
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
                         {isVideo ? (
                           <video
                             src={media}
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-contain bg-black"
                             controls
-                            autoPlay
                             loop
                             muted
                             playsInline
@@ -90,7 +90,8 @@ export const PropertyDetailDialog = ({
                           <img
                             src={media}
                             alt={`${property.name} - Image ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-contain bg-muted"
+                            loading="lazy"
                           />
                         )}
                       </div>
@@ -105,6 +106,11 @@ export const PropertyDetailDialog = ({
                 </>
               )}
             </Carousel>
+            
+            {/* Image counter */}
+            <div className="text-center mt-2 text-sm text-muted-foreground">
+              {property.images.length} {property.images.length === 1 ? 'photo' : 'photos'}
+            </div>
           </div>
         )}
 
@@ -137,7 +143,9 @@ export const PropertyDetailDialog = ({
         {/* Description */}
         <div className="mb-6">
           <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3">Description</h3>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{property.description}</p>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
+            {property.description}
+          </p>
         </div>
 
         {/* Amenities */}
@@ -155,7 +163,7 @@ export const PropertyDetailDialog = ({
         )}
 
         {/* Book Now Button */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border sticky bottom-0 bg-background pb-2">
           <Button
             className="flex-1 bg-primary hover:bg-primary/90 w-full px-8 py-6 sm:py-3 text-base sm:text-sm"
             onClick={onBook}
@@ -172,4 +180,4 @@ export const PropertyDetailDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
