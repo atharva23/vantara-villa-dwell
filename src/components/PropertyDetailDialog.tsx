@@ -294,7 +294,7 @@ export const PropertyDetailDialog = ({
       {/* Full Image Viewer Modal - Fixed container height */}
       {showFullImage && (
         <Dialog open={showFullImage} onOpenChange={handleCloseFullImage}>
-          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] h-[85vh] p-0 overflow-hidden bg-black flex flex-col [&>button]:hidden">
+          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] h-[85vh] p-0 overflow-hidden bg-black flex flex-col [&>button[aria-label='Close']]:hidden">
             {/* Header with close button - Higher z-index */}
             <div className="relative z-30 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between flex-shrink-0">
               <div className="text-white">
@@ -320,29 +320,29 @@ export const PropertyDetailDialog = ({
                 alt={`${property.name} - Image ${selectedImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain pointer-events-none"
               />
-            </div>
 
-            {/* Navigation Arrows - Highest z-index to be clickable */}
-            {imageUrls.length > 1 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={prevImage}
-                  className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
-                >
-                  <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={nextImage}
-                  className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
-                >
-                  <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
-                </Button>
-              </>
-            )}
+              {/* Navigation Arrows - Highest z-index to be clickable */}
+              {imageUrls.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={prevImage}
+                    className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                  >
+                    <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={nextImage}
+                    className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                  >
+                    <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+                  </Button>
+                </>
+              )}
+            </div>
 
             {/* Thumbnail Strip - Medium z-index */}
             <div className="relative z-20 bg-black/90 p-2 sm:p-4 border-t border-white/10 flex-shrink-0">
