@@ -8,14 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, MessageCircle, X, Grid3x3, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { MapPin, MessageCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Property {
   id: string;
@@ -62,10 +55,14 @@ export const PropertyDetailDialog = ({
     );
   };
 
+  // Filter out videos for the grid
+  const imageUrls = property.images.filter(img => !img.match(/\.(mp4|mov|avi|webm)$/i));
+  const remainingCount = imageUrls.length - 5;
+
   return (
     <>
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-4 sm:p-6">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-4 sm:p-6">
           <DialogHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -81,74 +78,97 @@ export const PropertyDetailDialog = ({
             </div>
           </DialogHeader>
 
-          {/* Image Slider with 3 images visible */}
-          {property.images && property.images.length > 0 && (
-            <div className="mb-6 w-full overflow-hidden">
-              <Carousel className="w-full max-w-full">
-                <CarouselContent className="ml-0">
-                  {property.images.map((media, index) => {
-                    const isVideo = /\.(mp4|mov|avi|webm)$/i.test(media);
-                    
-                    return (
-                      <CarouselItem 
-                        key={index} 
-                        className="pl-2 basis-full md:basis-1/2 lg:basis-1/3 cursor-pointer"
-                        onClick={() => !isVideo && handleImageClick(index)}
-                      >
-                        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted group">
-                          {isVideo ? (
-                            <video
-                              src={media}
-                              className="w-full h-full object-cover"
-                              controls
-                              loop
-                              muted
-                              playsInline
-                              preload="metadata"
-                            >
-                              <source src={media} type="video/mp4" />
-                            </video>
-                          ) : (
-                            <>
-                              <img
-                                src={media}
-                                alt={`${property.name} - Image ${index + 1}`}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                loading="lazy"
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                            </>
-                          )}
-                        </div>
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                {property.images.length > 3 && (
-                  <>
-                    <CarouselPrevious className="left-2 sm:left-4" />
-                    <CarouselNext className="right-2 sm:right-4" />
-                  </>
-                )}
-              </Carousel>
-              
-              {/* View All Gallery Button */}
-              <div className="flex items-center justify-between mt-3">
-                <div className="text-sm text-muted-foreground">
-                  {property.images.length} {property.images.length === 1 ? 'photo' : 'photos'}
+          {/* Booking.com Style Image Grid */}
+          {imageUrls && imageUrls.length > 0 && (
+            <div className="mb-6 w-full">
+              <div className="grid grid-cols-4 gap-2 h-[400px]">
+                {/* Large image on the left - 2 columns, full height */}
+                <div 
+                  className="col-span-2 row-span-2 relative overflow-hidden rounded-l-lg cursor-pointer group"
+                  onClick={() => handleImageClick(0)}
+                >
+                  <img
+                    src={imageUrls[0]}
+                    alt={`${property.name} - Main`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
-                {property.images.length > 3 && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setShowGallery(true)}
-                    className="gap-2"
+
+                {/* Top right image */}
+                {imageUrls[1] && (
+                  <div 
+                    className="col-span-2 relative overflow-hidden rounded-tr-lg cursor-pointer group"
+                    onClick={() => handleImageClick(1)}
                   >
-                    <Grid3x3 className="h-4 w-4" />
-                    View All Photos
-                  </Button>
+                    <img
+                      src={imageUrls[1]}
+                      alt={`${property.name} - Image 2`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  </div>
+                )}
+
+                {/* Bottom right - 2 small images */}
+                {imageUrls[2] && (
+                  <div 
+                    className="relative overflow-hidden cursor-pointer group"
+                    onClick={() => handleImageClick(2)}
+                  >
+                    <img
+                      src={imageUrls[2]}
+                      alt={`${property.name} - Image 3`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  </div>
+                )}
+
+                {imageUrls[3] && (
+                  <div 
+                    className="relative overflow-hidden cursor-pointer group"
+                    onClick={() => handleImageClick(3)}
+                  >
+                    <img
+                      src={imageUrls[3]}
+                      alt={`${property.name} - Image 4`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  </div>
+                )}
+
+                {/* Last image with overlay showing remaining count */}
+                {imageUrls[4] && (
+                  <div 
+                    className="relative overflow-hidden rounded-br-lg cursor-pointer group"
+                    onClick={() => setShowGallery(true)}
+                  >
+                    <img
+                      src={imageUrls[4]}
+                      alt={`${property.name} - Image 5`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    {remainingCount > 0 && (
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                        <span className="text-white text-xl font-bold">
+                          +{remainingCount} photos
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                  </div>
                 )}
               </div>
+
+              {/* Show all photos link */}
+              <button
+                onClick={() => setShowGallery(true)}
+                className="mt-3 text-sm text-primary hover:underline font-medium"
+              >
+                View all {imageUrls.length} photos
+              </button>
             </div>
           )}
 
@@ -228,7 +248,7 @@ export const PropertyDetailDialog = ({
                 <div className="text-white">
                   <h3 className="font-semibold text-lg">{property.name}</h3>
                   <p className="text-sm text-white/80">
-                    {selectedImageIndex + 1} / {property.images.length}
+                    {selectedImageIndex + 1} / {imageUrls.length}
                   </p>
                 </div>
                 <Button
@@ -243,27 +263,14 @@ export const PropertyDetailDialog = ({
 
               {/* Main Image Viewer */}
               <div className="flex-1 relative flex items-center justify-center p-4">
-                {property.images[selectedImageIndex]?.match(/\.(mp4|mov|avi|webm)$/i) ? (
-                  <video
-                    src={property.images[selectedImageIndex]}
-                    className="max-w-full max-h-full object-contain"
-                    controls
-                    autoPlay
-                    loop
-                    playsInline
-                  >
-                    <source src={property.images[selectedImageIndex]} type="video/mp4" />
-                  </video>
-                ) : (
-                  <img
-                    src={property.images[selectedImageIndex]}
-                    alt={`${property.name} - Image ${selectedImageIndex + 1}`}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                )}
+                <img
+                  src={imageUrls[selectedImageIndex]}
+                  alt={`${property.name} - Image ${selectedImageIndex + 1}`}
+                  className="max-w-full max-h-full object-contain"
+                />
 
                 {/* Navigation Arrows */}
-                {property.images.length > 1 && (
+                {imageUrls.length > 1 && (
                   <>
                     <Button
                       variant="ghost"
@@ -288,34 +295,23 @@ export const PropertyDetailDialog = ({
               {/* Thumbnail Strip */}
               <div className="bg-black/90 p-4 border-t border-white/10">
                 <div className="flex gap-2 overflow-x-auto pb-2">
-                  {property.images.map((media, index) => {
-                    const isVideo = /\.(mp4|mov|avi|webm)$/i.test(media);
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedImageIndex(index)}
-                        className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                          selectedImageIndex === index
-                            ? 'border-white scale-105'
-                            : 'border-transparent opacity-60 hover:opacity-100'
-                        }`}
-                      >
-                        {isVideo ? (
-                          <video
-                            src={media}
-                            className="w-full h-full object-cover"
-                            muted
-                          />
-                        ) : (
-                          <img
-                            src={media}
-                            alt={`Thumbnail ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+                  {imageUrls.map((media, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImageIndex === index
+                          ? 'border-white scale-105'
+                          : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={media}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
