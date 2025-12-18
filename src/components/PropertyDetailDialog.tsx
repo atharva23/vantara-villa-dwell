@@ -240,9 +240,9 @@ export const PropertyDetailDialog = ({
       </Dialog>
 
       {/* Gallery Grid View Modal */}
-      {showGallery && (
+      {showGallery && !showFullImage && (
         <Dialog open={showGallery} onOpenChange={handleCloseGallery}>
-          <DialogContent className="max-w-7xl max-h-[95vh] p-3 sm:p-6 overflow-y-auto">
+          <DialogContent className="max-w-7xl max-h-[95vh] p-3 sm:p-6 overflow-y-auto" hideCloseButton>
             <DialogHeader className="sticky top-0 bg-background z-10 pb-3 sm:pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -294,7 +294,7 @@ export const PropertyDetailDialog = ({
       {/* Full Image Viewer Modal - Fixed container height */}
       {showFullImage && (
         <Dialog open={showFullImage} onOpenChange={handleCloseFullImage}>
-          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] h-[85vh] p-0 overflow-hidden bg-black flex flex-col">
+          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] h-[85vh] p-0 overflow-hidden bg-black flex flex-col" hideCloseButton>
             {/* Header with close button - Higher z-index */}
             <div className="relative z-30 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between flex-shrink-0">
               <div className="text-white">
