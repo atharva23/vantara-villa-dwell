@@ -38,26 +38,27 @@ export const PropertyDetailDialog = ({
   onBook,
 }: PropertyDetailDialogProps) => {
   const [showGallery, setShowGallery] = useState(false);
+  const [showFullImage, setShowFullImage] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
-    setShowGallery(true);
+    setShowFullImage(true);
   };
 
   const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % property.images.length);
+    setSelectedImageIndex((prev) => (prev + 1) % imageUrls.length);
   };
 
   const prevImage = () => {
     setSelectedImageIndex((prev) => 
-      prev === 0 ? property.images.length - 1 : prev - 1
+      prev === 0 ? imageUrls.length - 1 : prev - 1
     );
   };
 
   // Filter out videos for the grid
   const imageUrls = property.images.filter(img => !img.match(/\.(mp4|mov|avi|webm)$/i));
-  const remainingCount = imageUrls.length - 5;
+  const remainingCount = imageUrls.length - 4;
 
   return (
     <>
@@ -78,7 +79,7 @@ export const PropertyDetailDialog = ({
             </div>
           </DialogHeader>
 
-          {/* Booking.com Style Image Grid */}
+          {/* Booking.com Style Image Grid - 4 images only */}
           {imageUrls && imageUrls.length > 0 && (
             <div className="mb-6 w-full">
               <div className="grid grid-cols-4 gap-2 h-[400px]">
@@ -110,7 +111,7 @@ export const PropertyDetailDialog = ({
                   </div>
                 )}
 
-                {/* Bottom right - 2 small images */}
+                {/* Bottom right - 2 images */}
                 {imageUrls[2] && (
                   <div 
                     className="relative overflow-hidden cursor-pointer group"
@@ -125,39 +126,27 @@ export const PropertyDetailDialog = ({
                   </div>
                 )}
 
+                {/* Last image with overlay showing remaining count */}
                 {imageUrls[3] && (
                   <div 
-                    className="relative overflow-hidden cursor-pointer group"
-                    onClick={() => handleImageClick(3)}
+                    className="relative overflow-hidden rounded-br-lg cursor-pointer group"
+                    onClick={() => setShowGallery(true)}
                   >
                     <img
                       src={imageUrls[3]}
                       alt={`${property.name} - Image 4`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                  </div>
-                )}
-
-                {/* Last image with overlay showing remaining count */}
-                {imageUrls[4] && (
-                  <div 
-                    className="relative overflow-hidden rounded-br-lg cursor-pointer group"
-                    onClick={() => setShowGallery(true)}
-                  >
-                    <img
-                      src={imageUrls[4]}
-                      alt={`${property.name} - Image 5`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
                     {remainingCount > 0 && (
-                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center hover:bg-black/60 transition-colors">
                         <span className="text-white text-xl font-bold">
                           +{remainingCount} photos
                         </span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                    {remainingCount === 0 && (
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                    )}
                   </div>
                 )}
               </div>
@@ -238,10 +227,62 @@ export const PropertyDetailDialog = ({
         </DialogContent>
       </Dialog>
 
-      {/* Full Gallery Modal */}
+      {/* Gallery Grid View Modal */}
       {showGallery && (
         <Dialog open={showGallery} onOpenChange={setShowGallery}>
-          <DialogContent className="max-w-7xl h-[95vh] p-0 overflow-hidden bg-black">
+          <DialogContent className="max-w-7xl max-h-[95vh] p-6 overflow-y-auto">
+            <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-2xl font-bold">{property.name}</DialogTitle>
+                  <DialogDescription className="mt-1">
+                    {imageUrls.length} photos
+                  </DialogDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowGallery(false)}
+                  className="h-8 w-8"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </DialogHeader>
+
+            {/* Grid of all images */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+              {imageUrls.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
+                  onClick={() => handleImageClick(index)}
+                >
+                  <img
+                    src={image}
+                    alt={`${property.name} - Image ${index + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-white/90 rounded-full p-3">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Full Image Viewer Modal */}
+      {showFullImage && (
+        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+          <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 m-0 overflow-hidden bg-black border-0">
             <div className="relative w-full h-full flex flex-col">
               {/* Header */}
               <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4 flex items-center justify-between">
@@ -254,7 +295,7 @@ export const PropertyDetailDialog = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowGallery(false)}
+                  onClick={() => setShowFullImage(false)}
                   className="text-white hover:bg-white/20"
                 >
                   <X className="h-6 w-6" />
