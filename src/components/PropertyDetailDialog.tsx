@@ -291,81 +291,79 @@ export const PropertyDetailDialog = ({
         </Dialog>
       )}
 
-      {/* Full Image Viewer Modal - Fixed z-index and clickable arrows */}
+      {/* Full Image Viewer Modal - Fixed container height */}
       {showFullImage && (
         <Dialog open={showFullImage} onOpenChange={handleCloseFullImage}>
-          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] max-h-[85vh] p-0 overflow-hidden bg-black">
-            <div className="relative w-full h-full flex flex-col">
-              {/* Header with close button - Higher z-index */}
-              <div className="relative z-30 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between">
-                <div className="text-white">
-                  <h3 className="font-semibold text-sm sm:text-lg">{property.name}</h3>
-                  <p className="text-xs sm:text-sm text-white/80">
-                    {selectedImageIndex + 1} / {imageUrls.length}
-                  </p>
-                </div>
+          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] h-[85vh] p-0 overflow-hidden bg-black flex flex-col">
+            {/* Header with close button - Higher z-index */}
+            <div className="relative z-30 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between flex-shrink-0">
+              <div className="text-white">
+                <h3 className="font-semibold text-sm sm:text-lg">{property.name}</h3>
+                <p className="text-xs sm:text-sm text-white/80">
+                  {selectedImageIndex + 1} / {imageUrls.length}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCloseFullImage}
+                className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </Button>
+            </div>
+
+            {/* Main Image Viewer - Takes remaining space */}
+            <div className="flex-1 relative flex items-center justify-center p-2 sm:p-4 z-10 overflow-hidden">
+              <img
+                src={imageUrls[selectedImageIndex]}
+                alt={`${property.name} - Image ${selectedImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain pointer-events-none"
+              />
+            </div>
+
+            {/* Navigation Arrows - Highest z-index to be clickable */}
+            {imageUrls.length > 1 && (
+              <>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleCloseFullImage}
-                  className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10"
+                  onClick={prevImage}
+                  className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
                 >
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
                 </Button>
-              </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={nextImage}
+                  className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                >
+                  <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+                </Button>
+              </>
+            )}
 
-              {/* Main Image Viewer - Lower z-index */}
-              <div className="flex-1 relative flex items-center justify-center p-2 sm:p-4 min-h-[250px] sm:min-h-[400px] z-10">
-                <img
-                  src={imageUrls[selectedImageIndex]}
-                  alt={`${property.name} - Image ${selectedImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain pointer-events-none"
-                />
-              </div>
-
-              {/* Navigation Arrows - Highest z-index to be clickable */}
-              {imageUrls.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={prevImage}
-                    className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+            {/* Thumbnail Strip - Medium z-index */}
+            <div className="relative z-20 bg-black/90 p-2 sm:p-4 border-t border-white/10 flex-shrink-0">
+              <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
+                {imageUrls.map((media, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`relative flex-shrink-0 w-12 h-12 sm:w-20 sm:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImageIndex === index
+                        ? 'border-white scale-105'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
                   >
-                    <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={nextImage}
-                    className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
-                  >
-                    <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
-                  </Button>
-                </>
-              )}
-
-              {/* Thumbnail Strip - Medium z-index */}
-              <div className="relative z-20 bg-black/90 p-2 sm:p-4 border-t border-white/10">
-                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
-                  {imageUrls.map((media, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`relative flex-shrink-0 w-12 h-12 sm:w-20 sm:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === index
-                          ? 'border-white scale-105'
-                          : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img
-                        src={media}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
+                    <img
+                      src={media}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             </div>
           </DialogContent>
