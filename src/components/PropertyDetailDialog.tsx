@@ -46,14 +46,24 @@ export const PropertyDetailDialog = ({
     setShowFullImage(true);
   };
 
-  const nextImage = () => {
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setSelectedImageIndex((prev) => (prev + 1) % imageUrls.length);
   };
 
-  const prevImage = () => {
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setSelectedImageIndex((prev) => 
       prev === 0 ? imageUrls.length - 1 : prev - 1
     );
+  };
+
+  const handleCloseFullImage = () => {
+    setShowFullImage(false);
+  };
+
+  const handleCloseGallery = () => {
+    setShowGallery(false);
   };
 
   // Filter out videos for the grid
@@ -79,44 +89,14 @@ export const PropertyDetailDialog = ({
             </div>
           </DialogHeader>
 
-          {/* Responsive Image Grid */}
+          {/* Responsive Image Grid - Grid on ALL devices */}
           {imageUrls && imageUrls.length > 0 && (
             <div className="mb-4 sm:mb-6 w-full">
-              {/* Mobile: Single column stack */}
-              <div className="md:hidden space-y-2">
-                {imageUrls.slice(0, 4).map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative w-full h-48 overflow-hidden rounded-lg cursor-pointer group"
-                    onClick={() => handleImageClick(index)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${property.name} - Image ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                    {index === 3 && remainingCount > 0 && (
-                      <div 
-                        className="absolute inset-0 bg-black/70 flex items-center justify-center"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowGallery(true);
-                        }}
-                      >
-                        <span className="text-white text-lg font-bold">
-                          +{remainingCount} photos
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop: Grid layout */}
-              <div className="hidden md:grid grid-cols-4 gap-2 h-[400px]">
+              {/* Grid layout for all screen sizes - scales down on mobile */}
+              <div className="grid grid-cols-4 gap-1 sm:gap-2 h-[200px] sm:h-[300px] md:h-[400px]">
                 {/* Large image on the left */}
                 <div 
-                  className="col-span-2 row-span-2 relative overflow-hidden rounded-l-lg cursor-pointer group"
+                  className="col-span-2 row-span-2 relative overflow-hidden rounded-l-md sm:rounded-l-lg cursor-pointer group"
                   onClick={() => handleImageClick(0)}
                 >
                   <img
@@ -130,7 +110,7 @@ export const PropertyDetailDialog = ({
                 {/* Top right image */}
                 {imageUrls[1] && (
                   <div 
-                    className="col-span-2 relative overflow-hidden rounded-tr-lg cursor-pointer group"
+                    className="col-span-2 relative overflow-hidden rounded-tr-md sm:rounded-tr-lg cursor-pointer group"
                     onClick={() => handleImageClick(1)}
                   >
                     <img
@@ -159,7 +139,7 @@ export const PropertyDetailDialog = ({
 
                 {imageUrls[3] && (
                   <div 
-                    className="relative overflow-hidden rounded-br-lg cursor-pointer group"
+                    className="relative overflow-hidden rounded-br-md sm:rounded-br-lg cursor-pointer group"
                     onClick={() => handleImageClick(3)}
                   >
                     <img
@@ -175,8 +155,8 @@ export const PropertyDetailDialog = ({
                           setShowGallery(true);
                         }}
                       >
-                        <span className="text-white text-xl font-bold">
-                          +{remainingCount} photos
+                        <span className="text-white text-xs sm:text-sm md:text-xl font-bold">
+                          +{remainingCount}
                         </span>
                       </div>
                     )}
@@ -261,7 +241,7 @@ export const PropertyDetailDialog = ({
 
       {/* Gallery Grid View Modal */}
       {showGallery && (
-        <Dialog open={showGallery} onOpenChange={setShowGallery}>
+        <Dialog open={showGallery} onOpenChange={handleCloseGallery}>
           <DialogContent className="max-w-7xl max-h-[95vh] p-3 sm:p-6 overflow-y-auto">
             <DialogHeader className="sticky top-0 bg-background z-10 pb-3 sm:pb-4">
               <div className="flex items-center justify-between">
@@ -274,7 +254,7 @@ export const PropertyDetailDialog = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowGallery(false)}
+                  onClick={handleCloseGallery}
                   className="h-8 w-8"
                 >
                   <X className="h-5 w-5" />
@@ -311,13 +291,13 @@ export const PropertyDetailDialog = ({
         </Dialog>
       )}
 
-      {/* Full Image Viewer Modal - Compact for Mobile */}
+      {/* Full Image Viewer Modal - Fixed z-index and clickable arrows */}
       {showFullImage && (
-        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
-          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] max-h-[90vh] p-0 overflow-hidden bg-black">
+        <Dialog open={showFullImage} onOpenChange={handleCloseFullImage}>
+          <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] max-h-[85vh] p-0 overflow-hidden bg-black">
             <div className="relative w-full h-full flex flex-col">
-              {/* Header with close button */}
-              <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between">
+              {/* Header with close button - Higher z-index */}
+              <div className="relative z-30 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-2 sm:p-4 flex items-center justify-between">
                 <div className="text-white">
                   <h3 className="font-semibold text-sm sm:text-lg">{property.name}</h3>
                   <p className="text-xs sm:text-sm text-white/80">
@@ -327,46 +307,46 @@ export const PropertyDetailDialog = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowFullImage(false)}
+                  onClick={handleCloseFullImage}
                   className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
               </div>
 
-              {/* Main Image Viewer */}
-              <div className="flex-1 relative flex items-center justify-center p-2 sm:p-4 min-h-[300px] sm:min-h-[500px]">
+              {/* Main Image Viewer - Lower z-index */}
+              <div className="flex-1 relative flex items-center justify-center p-2 sm:p-4 min-h-[250px] sm:min-h-[400px] z-10">
                 <img
                   src={imageUrls[selectedImageIndex]}
                   alt={`${property.name} - Image ${selectedImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain"
+                  className="max-w-full max-h-full object-contain pointer-events-none"
                 />
-
-                {/* Navigation Arrows */}
-                {imageUrls.length > 1 && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={prevImage}
-                      className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full h-8 w-8 sm:h-12 sm:w-12"
-                    >
-                      <ChevronLeft className="h-5 w-5 sm:h-8 sm:w-8" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={nextImage}
-                      className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full h-8 w-8 sm:h-12 sm:w-12"
-                    >
-                      <ChevronRight className="h-5 w-5 sm:h-8 sm:w-8" />
-                    </Button>
-                  </>
-                )}
               </div>
 
-              {/* Thumbnail Strip */}
-              <div className="bg-black/90 p-2 sm:p-4 border-t border-white/10">
+              {/* Navigation Arrows - Highest z-index to be clickable */}
+              {imageUrls.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={prevImage}
+                    className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                  >
+                    <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={nextImage}
+                    className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-40 text-white bg-black/50 hover:bg-black/70 rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                  >
+                    <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+                  </Button>
+                </>
+              )}
+
+              {/* Thumbnail Strip - Medium z-index */}
+              <div className="relative z-20 bg-black/90 p-2 sm:p-4 border-t border-white/10">
                 <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
                   {imageUrls.map((media, index) => (
                     <button
