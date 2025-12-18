@@ -76,7 +76,7 @@ export const PropertyDetailDialog = ({
                         {isVideo ? (
                           <video
                             src={media}
-                            className="w-full h-full object-contain bg-black"
+                            className="w-full h-full object-cover"
                             controls
                             loop
                             muted
@@ -90,7 +90,7 @@ export const PropertyDetailDialog = ({
                           <img
                             src={media}
                             alt={`${property.name} - Image ${index + 1}`}
-                            className="w-full h-full object-contain bg-muted"
+                            className="w-full h-full object-cover"
                             loading="lazy"
                           />
                         )}
