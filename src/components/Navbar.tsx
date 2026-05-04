@@ -18,7 +18,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-border shadow-sm">
+    <nav className="fixed top-0 w-full bg-white z-50 border-b border-border shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
@@ -63,7 +63,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div className="md:hidden border-t border-border bg-white">
           <div className="px-4 py-4 space-y-3">
             {navLinks.map((link) => (
               <Link
