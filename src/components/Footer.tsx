@@ -79,7 +79,7 @@ const Footer = () => {
                 <MessageCircle className="h-5 w-5" />
               </a>
               <a
-                href="https://linkedin.com/company/vantaraliving"
+                href="https://www.linkedin.com/company/vantara-living/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"

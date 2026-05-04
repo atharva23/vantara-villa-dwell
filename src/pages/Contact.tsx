@@ -43,7 +43,7 @@ const Contact = () => {
   const socialLinks = [
     { icon: <Instagram className="h-5 w-5" />, url: "https://www.instagram.com/vantara_living?igsh=OTF0cGprZHBxZW40&utm_source=qr" },
     { icon: <MessageCircle className="h-5 w-5" />, url: "https://wa.me/918459897240" },
-    { icon: <Linkedin className="h-5 w-5" />, url: "https://linkedin.com/company/vantaraliving" },
+    { icon: <Linkedin className="h-5 w-5" />, url: "https://www.linkedin.com/company/vantara-living/" },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
