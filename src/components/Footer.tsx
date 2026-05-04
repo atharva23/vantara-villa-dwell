@@ -71,7 +71,7 @@ const Footer = () => {
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="https://wa.me/1234567890"
+                href="https://wa.me/918459897240"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -94,7 +94,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>+91 1234567890</span>
+                <span>+918459897240</span>
               </div>
             </div>
           </div>

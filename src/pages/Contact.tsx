@@ -29,20 +29,20 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6 text-accent" />,
       title: "Phone",
-      value: "+91 1234567890",
-      link: "tel:+911234567890",
+      value: "+918459897240",
+      link: "tel:+918459897240",
     },
     {
       icon: <MessageCircle className="h-6 w-6 text-accent" />,
       title: "WhatsApp",
       value: "Chat with us",
-      link: "https://wa.me/1234567890",
+      link: "https://wa.me/918459897240",
     },
   ];
 
   const socialLinks = [
     { icon: <Instagram className="h-5 w-5" />, url: "https://instagram.com/vantaraliving" },
-    { icon: <MessageCircle className="h-5 w-5" />, url: "https://wa.me/1234567890" },
+    { icon: <MessageCircle className="h-5 w-5" />, url: "https://wa.me/918459897240" },
     { icon: <Linkedin className="h-5 w-5" />, url: "https://linkedin.com/company/vantaraliving" },
   ];
 
@@ -207,7 +207,7 @@ const Contact = () => {
                     className="bg-accent hover:bg-accent/90 text-foreground w-full"
                   >
                     <a 
-                      href="https://wa.me/1234567890" 
+                      href="https://wa.me/918459897240" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
