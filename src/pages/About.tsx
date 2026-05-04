@@ -7,23 +7,23 @@ const About = () => {
   const values = [
     {
       icon: <Heart className="h-10 w-10 text-accent" />,
-      title: "Curated Experiences",
-      description: "Every property is handpicked and verified to ensure exceptional quality and memorable stays.",
+      title: "End-to-End Villa Management",
+      description: "We specialize in complete villa rental and management solutions designed to maximize your property's potential.",
     },
     {
       icon: <Shield className="h-10 w-10 text-accent" />,
-      title: "Trust & Transparency",
-      description: "We believe in honest communication and building lasting relationships with our guests and hosts.",
+      title: "Flexible Branding Options",
+      description: "List under Vantara Living or build your own independent identity with full backend support from our team.",
     },
     {
       icon: <Leaf className="h-10 w-10 text-accent" />,
-      title: "Sustainability",
-      description: "Committed to promoting eco-friendly practices and supporting local communities.",
+      title: "360-Degree Marketing Services",
+      description: "From branding strategy and content creation to listing optimization and performance campaigns, every service is tailored to your goals.",
     },
     {
       icon: <Award className="h-10 w-10 text-accent" />,
-      title: "Excellence in Service",
-      description: "24/7 support and personalized concierge services to make your stay seamless.",
+      title: "Operations with Consistent Growth",
+      description: "We manage guest inquiries, bookings, and day-to-day operations to drive higher occupancy and premium guest experiences.",
     },
   ];
 
@@ -36,12 +36,12 @@ const About = () => {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Our Story
+              About Vantara Living
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Vantara Living was born from a passion for exceptional hospitality and a vision to 
-              redefine luxury villa experiences. We believe that travel should be more than just 
-              a vacation—it should be a journey of discovery, comfort, and unforgettable memories.
+              At Vantara Living, we specialize in end-to-end villa rental and management solutions
+              designed for modern property owners. Our approach is simple: we help you maximize your
+              villa's potential while giving you complete flexibility over how your brand is presented.
             </p>
           </div>
 
@@ -50,13 +50,13 @@ const About = () => {
             <Card className="border-border shadow-lg">
               <CardContent className="p-8 md:p-12">
                 <h2 className="text-3xl font-bold text-foreground mb-6 text-center">
-                  Our Mission
+                  How We Support Owners
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed text-center max-w-3xl mx-auto">
-                  To curate and deliver extraordinary luxury villa experiences that exceed expectations, 
-                  foster meaningful connections, and create lasting memories. We are committed to providing 
-                  seamless, personalized service while maintaining the highest standards of quality, 
-                  sustainability, and authenticity in every stay.
+                  Whether you want to list your villa under the Vantara Living umbrella or build your
+                  own independent identity, we provide seamless backend support. From social media
+                  management and digital presence to handling guest inquiries and bookings, our team
+                  helps your property stand out in a competitive market.
                 </p>
               </CardContent>
             </Card>
@@ -66,10 +66,10 @@ const About = () => {
           <div className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Our Core Values
+                Our Core Services
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                The principles that guide everything we do
+                Full-spectrum support tailored to your property's growth goals
               </p>
             </div>
 
@@ -97,15 +97,15 @@ const About = () => {
             </h2>
             <div className="bg-muted/30 rounded-lg p-8 md:p-12">
               <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl mx-auto mb-6">
-                We go beyond traditional villa rentals. Each property in our portfolio is carefully 
-                selected for its unique character, location, and amenities. Our dedicated team ensures 
-                that every aspect of your stay is taken care of—from the moment you inquire to long 
-                after you've checked out.
+                We offer 360-degree marketing services, including branding strategy, content creation,
+                listing optimization, and performance-driven campaigns. For owners who prefer to grow
+                their own brand, we work behind the scenes while you retain full ownership of your
+                identity.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl mx-auto">
-                Whether you're seeking a tranquil beachfront escape, a majestic mountain retreat, 
-                a heritage villa with cultural richness, or a corporate stay for your team—Vantara Living 
-                is your trusted partner in creating extraordinary experiences.
+                Beyond marketing, we take care of villa operations to deliver a smooth experience for
+                both owners and guests. At Vantara Living, we do not just manage villas - we build
+                brands, elevate experiences, and create long-term value for property owners.
               </p>
             </div>
           </div>
