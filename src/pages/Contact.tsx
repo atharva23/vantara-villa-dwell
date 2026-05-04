@@ -23,8 +23,8 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6 text-accent" />,
       title: "Email",
-      value: "info@vantaraliving.com",
-      link: "mailto:info@vantaraliving.com",
+      value: "vantaraliving.in@gmail.com",
+      link: "mailto:vantaraliving.in@gmail.com",
     },
     {
       icon: <Phone className="h-6 w-6 text-accent" />,
