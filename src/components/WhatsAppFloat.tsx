@@ -4,7 +4,7 @@ import { MessageCircle, X } from "lucide-react";
 const WhatsAppFloat = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
-  const whatsappNumber = "+918485099069"; // Your WhatsApp number
+  const whatsappNumber = "+918459897240"; // Your WhatsApp number
   const message = "Hi! I'm interested in learning more about your properties.";
 
   useEffect(() => {
