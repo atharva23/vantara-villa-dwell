@@ -128,7 +128,7 @@ const Properties = () => {
     // Load images for all properties in parallel
     const imagePromises = propertiesList.map(async (property) => {
       try {
-        const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${property.id}/&max-keys=10`;
+        const listUrl = `${s3BucketUrl}/?list-type=2&prefix=${property.id}/&max-keys=1000`;
         const s3ListResponse = await fetch(listUrl);
         const s3ListXml = await s3ListResponse.text();
 
