@@ -18,7 +18,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-border shadow-sm">
+    <nav className="fixed top-0 w-full bg-[hsl(var(--navbar-bg)/0.95)] backdrop-blur-sm z-50 border-b border-white/15 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
@@ -35,8 +35,8 @@ const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path) ? "text-primary" : "text-foreground"
+                className={`text-sm font-medium transition-colors hover:text-accent ${
+                  isActive(link.path) ? "text-accent" : "text-white"
                 }`}
               >
                 {link.name}
@@ -53,9 +53,9 @@ const Navbar = () => {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="h-6 w-6 text-foreground" />
+              <X className="h-6 w-6 text-white" />
             ) : (
-              <Menu className="h-6 w-6 text-foreground" />
+              <Menu className="h-6 w-6 text-white" />
             )}
           </button>
         </div>
@@ -63,7 +63,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div className="md:hidden border-t border-white/15 bg-[hsl(var(--navbar-bg))]">
           <div className="px-4 py-4 space-y-3">
             {navLinks.map((link) => (
               <Link
@@ -71,7 +71,7 @@ const Navbar = () => {
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block py-2 text-base font-medium transition-colors ${
-                  isActive(link.path) ? "text-primary" : "text-foreground"
+                  isActive(link.path) ? "text-accent" : "text-white"
                 }`}
               >
                 {link.name}
