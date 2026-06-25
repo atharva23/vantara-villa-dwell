@@ -95,7 +95,7 @@ const Properties = () => {
           price: values[4]?.replace("₹", "").replace(",", "") || "",
           category: "Villa",
           images: [], // Will be loaded on-demand
-          whatsapp_number: values[5] || "+918459897240",
+          whatsapp_number: "+918459897240",
           book_link: values[6] || "",
           amenities: values[7] ? values[7].split(",").map(a => a.trim()) : [],
           max_guests: values[8] || "",
